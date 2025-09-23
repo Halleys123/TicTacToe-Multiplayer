@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'PressStart2P';
+  src: url('/public/Luckiest_Guy/LuckiestGuy.ttf') format('truetype');
+}
+
+@theme {
+  --font-PressStart2P: 'PressStart2P', cursive;
+  --color-player-one: #ff6b6b;
+  --color-player-two: #4ecdc4;
+  --color-player-one-fade: #ffb3b3;
+  --color-player-two-fade: #a7e6e0;
+  --color-game-bg: #2d3748;
+  --color-game-accent: #ffd93d;
+  --color-neon-pink: #ff10f0;
+  --color-neon-blue: #10d7ff;
+  --color-dark-surface: #1a202c;
+  --color-board-bg: #2d3748;
+}
+
+/* Custom animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(255, 217, 61, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.8),
+      0 0 30px rgba(255, 217, 61, 0.4);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.game-button {
+  background: linear-gradient(145deg, #374151, #1f2937);
+  border: 2px solid #4b5563;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.game-button:hover:before {
+  left: 100%;
+}
+
+.game-button:hover {
+  border-color: var(--color-game-accent);
+  box-shadow: 0 0 15px rgba(255, 217, 61, 0.3);
+  transform: translateY(-2px);
+}
+
+.game-button:active {
+  transform: translateY(0);
+}
+
+.game-button.filled-x {
+  background: linear-gradient(145deg, #ff6b6b, #e55555);
+  border-color: #ff6b6b;
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+}
+
+.game-button.filled-o {
+  background: linear-gradient(145deg, #4ecdc4, #45b7b8);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+}
+
+.game-board {
+  background: var(--color-board-bg);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 0 40px rgba(255, 217, 61, 0.1);
+  border: 2px solid #4a5568;
+}
+
+.score-panel {
+  background: linear-gradient(135deg, var(--color-dark-surface), #2d3748);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid #4a5568;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  animation: slide-up 0.5s ease-out;
+}
+
+.current-turn {
+  animation: pulse-glow 2s infinite;
+}
+
+.player-score.active {
+  animation: pulse-glow 1.5s infinite;
+}
+
+.restart-btn {
+  background: linear-gradient(135deg, var(--color-game-accent), #e6c200);
+  color: #1a202c;
+  font-weight: bold;
+  border: 2px solid var(--color-game-accent);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.restart-btn:hover {
+  background: linear-gradient(135deg, #fff44f, var(--color-game-accent));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
+}
+
+/* Animation utility classes */
+.animate-bounce-in {
+  animation: bounce-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
