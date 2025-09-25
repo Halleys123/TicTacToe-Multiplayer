@@ -5,18 +5,21 @@ import GeneralLayout from './layouts/GeneralLayout';
 import Leaderboard from './pages/Leaderboard';
 import HomePage from './pages/HomePage';
 import GamePage from './pages/GamePage';
+import GameStateProvider from './Provider/GameStateProvider';
 
 function App() {
   return (
-    <GeneralLayout>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<HomePage />} />
-          <Route path='/leaderboard' element={<Leaderboard />} />
-          <Route path='/game' element={<GamePage />} />
-        </Routes>
-      </BrowserRouter>
-    </GeneralLayout>
+    <GameStateProvider>
+      <GeneralLayout>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<HomePage />} />
+            <Route path='/leaderboard' element={<Leaderboard />} />
+            <Route path='/game' element={<GamePage />} />
+          </Routes>
+        </BrowserRouter>
+      </GeneralLayout>
+    </GameStateProvider>
   );
 }
 
