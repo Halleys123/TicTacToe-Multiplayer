@@ -1,45 +1,55 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import GameBox from '../components/Game/GameBox';
+import useGameState from '../hooks/useGameState';
 
 export default function GamePage() {
-  const [player, setPlayer] = useState('X');
-  const [winner, setWinner] = useState(null);
-  const [winCount, setWincount] = useState({ x: 0, o: 0, ties: 0 });
+  const {
+    gameMode,
+    myPlayer,
+    winner,
+    gameState,
+    winCount,
+    currentTurn,
+    setWinner,
+    setGameState,
+    setWincount,
+    setCurrentTurn,
+  } = useGameState();
 
-  const [gameState, setGameState] = useState(
-    Array(3).fill(Array(3).fill(null))
-  );
+  useEffect(() => {
+    document.title = 'Game - Tic Tac Toe';
+  }, []);
 
   function restartGame() {
-    setPlayer('X');
-    setWinner(null);
+    if (gameMode == 'local-multiplayer')
+      setCurrentTurn('X'); // Do Something here
+    else setWinner(null);
     setGameState(Array(3).fill(Array(3).fill(null)));
   }
 
   return (
     <div className='w-full h-full flex items-center justify-center flex-col'>
       <div className='w-full max-w-xl'>
-        {/* Top Section: Current Turn | Turn Current | Restart Button */}
         <div className='flex flex-row mb-8 justify-between items-center'>
-          {/* Top Left - Current Turn */}
-          <div className='flex-1'>
+          <div className='flex-1 flex flex-row gap-2'>
             <span className='text-xl font-PressStart2P font-medium text-gray-700 dark:text-gray-300'>
               {winner === 'tie'
                 ? 'Game Tied!'
                 : winner
                 ? `${winner} Won!`
-                : `${player}'s Turn`}
+                : `${currentTurn}'s Turn`}
             </span>
+            {gameMode == 'online-multiplayer' &&
+              currentTurn == myPlayer &&
+              (document.body.style.cursor = 'wait')}
           </div>
 
-          {/* Top Center - "Turn Current" */}
           <div className='flex-1 text-center'>
             <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
               Turn Current
             </span>
           </div>
 
-          {/* Top Right - Restart Button */}
           <div className='flex-1 flex justify-end'>
             <button
               onClick={restartGame}
@@ -50,34 +60,29 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Game Box */}
         <GameBox
           gameState={gameState}
           setGameState={setGameState}
-          player={player}
-          setPlayer={setPlayer}
+          player={currentTurn}
+          setPlayer={setCurrentTurn}
           winner={winner}
           setWinner={setWinner}
           setWincount={setWincount}
         />
 
-        {/* Bottom Section: Player 1 Wins | Ties | Player 2 Wins */}
         <div className='flex flex-row mt-8 justify-between items-center'>
-          {/* Bottom Left - Player 1 (X) Wins */}
           <div className='flex-1'>
             <span className='text-xl font-PressStart2P font-medium text-player-two'>
               X: {winCount.x}
             </span>
           </div>
 
-          {/* Bottom Center - Ties */}
           <div className='flex-1 text-center'>
             <span className='text-xl font-PressStart2P font-medium text-gray-600 dark:text-gray-300'>
               Ties: {winCount.ties}
             </span>
           </div>
 
-          {/* Bottom Right - Player 2 (O) Wins */}
           <div className='flex-1 flex justify-end'>
             <span className='text-xl font-PressStart2P font-medium text-player-one'>
               O: {winCount.o}
