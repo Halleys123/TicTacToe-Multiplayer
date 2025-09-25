@@ -10,19 +10,15 @@ export default function GameBox({
   setWincount,
 }) {
   function checkWinner(state, curPlayer, row, col) {
-    // Check row
     if (state[row].every((cell) => cell === curPlayer)) {
       return true;
     }
-    // Check column
     if (state.every((r) => r[col] === curPlayer)) {
       return true;
     }
-    // Check diagonal (top-left to bottom-right)
     if (row === col && state.every((r, idx) => r[idx] === curPlayer)) {
       return true;
     }
-    // Check anti-diagonal (top-right to bottom-left)
     if (row + col === 2 && state.every((r, idx) => r[2 - idx] === curPlayer)) {
       return true;
     }
@@ -57,7 +53,6 @@ export default function GameBox({
     } else if (
       newGameState.every((row) => row.every((cell) => cell !== null))
     ) {
-      // Check for tie - all cells filled and no winner
       alert("It's a tie!");
       setWincount((prevCount) => ({
         ...prevCount,

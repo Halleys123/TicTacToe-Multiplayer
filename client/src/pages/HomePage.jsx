@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import MultiplayerModal from '../components/MultiplayerModal';
+import useGameState from '../hooks/useGameState';
+import { useState } from 'react';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const gameState = useGameState();
 
   const handleGoogleLogin = () => {
     window.location.href = '/auth/google';
@@ -9,6 +14,7 @@ export default function HomePage() {
 
   return (
     <div className='min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black flex items-center justify-center p-6'>
+      {showModal && <MultiplayerModal setShowModal={setShowModal} />}
       <div className='w-full max-w-md'>
         <div className='rounded-2xl border border-gray-200/60 dark:border-white/10 bg-white/80 dark:bg-gray-900/70 backdrop-blur shadow-xl'>
           <div className='px-6 pt-8 pb-4 text-center'>
@@ -22,17 +28,29 @@ export default function HomePage() {
 
           <div className='px-6 pb-6 flex flex-col gap-3'>
             <button
-              onClick={() => navigate('/game?mode=local-multiplayer')}
+              onClick={() => {
+                navigate('/game?mode=local-multiplayer');
+                gameState.setGameMode('local-multiplayer');
+              }}
               className='w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors'
             >
               Local multiplayer
             </button>
 
-            <button className='w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-semibold transition-colors'>
+            <button
+              onClick={() => {
+                setShowModal(true);
+                gameState.setGameMode('online-multiplayer');
+              }}
+              className='w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-semibold transition-colors'
+            >
               Multiplayer (coming soon)
             </button>
 
-            <button className='w-full h-12 rounded-lg bg-purple-600/90 hover:bg-purple-600 text-white font-semibold transition-colors'>
+            <button
+              onClick={() => navigate('/leaderboard')}
+              className='w-full h-12 rounded-lg bg-purple-600/90 hover:bg-purple-600 text-white font-semibold transition-colors'
+            >
               Leaderboard
             </button>
 
