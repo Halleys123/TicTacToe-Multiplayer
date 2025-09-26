@@ -1,9 +1,7 @@
 export default function GeneralLayout({ children }) {
   return (
-    <div className='min-h-screen flex flex-col'>
-      <main className='flex-grow flex items-center justify-center bg-gray-100 dark:bg-neutral-900'>
-        {children}
-      </main>
+    <div className='min-h-screen w-screen overflow-x-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black '>
+      {children}
     </div>
   );
 }

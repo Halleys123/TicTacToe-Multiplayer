@@ -1,11 +1,8 @@
-import { useNavigate } from 'react-router-dom';
-import MultiplayerModal from '../components/MultiplayerModal';
+import { Outlet, useNavigate } from 'react-router-dom';
 import useGameState from '../hooks/useGameState';
-import { useState } from 'react';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
   const gameState = useGameState();
 
   const handleGoogleLogin = () => {
@@ -13,8 +10,8 @@ export default function HomePage() {
   };
 
   return (
-    <div className='min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black flex items-center justify-center p-6'>
-      {showModal && <MultiplayerModal setShowModal={setShowModal} />}
+    <div className='min-h-screen w-full bg-gradient-to-br  flex items-center justify-center p-6'>
+      <Outlet />
       <div className='w-full max-w-md'>
         <div className='rounded-2xl border border-gray-200/60 dark:border-white/10 bg-white/80 dark:bg-gray-900/70 backdrop-blur shadow-xl'>
           <div className='px-6 pt-8 pb-4 text-center'>
@@ -39,7 +36,7 @@ export default function HomePage() {
 
             <button
               onClick={() => {
-                setShowModal(true);
+                navigate('/multiplayer-options');
                 gameState.setGameMode('online-multiplayer');
               }}
               className='w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-semibold transition-colors'

@@ -1,10 +1,13 @@
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 
-export default function MultiplayerModal({ setShowModal = () => {} }) {
+export default function MultiplayerModal() {
+  const navigate = useNavigate();
+
   return createPortal(
     <div
       onClick={() => {
-        setShowModal(false);
+        navigate(-1);
       }}
       className='absolute top-0 left-0 h-screen w-screen z-10 backdrop-blur-xl bg-white/10 flex items-center justify-center fade-in'
     >
@@ -25,12 +28,17 @@ export default function MultiplayerModal({ setShowModal = () => {} }) {
           <button className='cursor-pointer w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-semibold transition-colors'>
             With a Friend
           </button>
-          <button className='cursor-pointer w-full h-12 rounded-lg bg-violet-600/90 hover:bg-violet-600 text-white font-semibold transition-colors'>
+          <button
+            onClick={() => {
+              navigate('/matchmaking');
+            }}
+            className='cursor-pointer w-full h-12 rounded-lg bg-violet-600/90 hover:bg-violet-600 text-white font-semibold transition-colors'
+          >
             Search Online
           </button>
           <button
             onClick={() => {
-              setShowModal(false);
+              navigate(-1);
             }}
             className='mt-24 cursor-pointer w-full h-12 rounded-lg bg-red-600/90 hover:bg-red-600 text-white font-semibold transition-colors'
           >

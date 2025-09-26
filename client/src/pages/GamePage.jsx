@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import GameBox from '../components/Game/GameBox';
 import useGameState from '../hooks/useGameState';
+import { useNavigate } from 'react-router-dom';
 
 export default function GamePage() {
   const {
@@ -15,6 +16,7 @@ export default function GamePage() {
     setWincount,
     setCurrentTurn,
   } = useGameState();
+  const Navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Game - Tic Tac Toe';
@@ -27,8 +29,13 @@ export default function GamePage() {
     setGameState(Array(3).fill(Array(3).fill(null)));
   }
 
+  function goBack() {
+    // TODO: Add confirmation modal
+    Navigate(-1);
+  }
+
   return (
-    <div className='w-full h-full flex items-center justify-center flex-col'>
+    <div className='w-screen min-h-screen flex items-center justify-center flex-col '>
       <div className='w-full max-w-xl'>
         <div className='flex flex-row mb-8 justify-between items-center'>
           <div className='flex-1 flex flex-row gap-2'>
@@ -50,12 +57,18 @@ export default function GamePage() {
             </span>
           </div>
 
-          <div className='flex-1 flex justify-end'>
+          <div className='flex-1 flex flex-row-reverse justify-end'>
             <button
               onClick={restartGame}
-              className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+              className='px-4 py-2 bg-blue-600 hover:bg-blue-700 ml-2 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
             >
               Restart
+            </button>
+            <button
+              onClick={goBack}
+              className='px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+            >
+              Go Back
             </button>
           </div>
         </div>
