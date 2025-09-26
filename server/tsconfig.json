@@ -1,0 +1,40 @@
+{
+  "include": ["**/*.ts", "./types/**/*.d.ts", "data/.gitkeep"],
+  "exclude": ["scripts", "dist", "tests"],
+  "compilerOptions": {
+    "baseUrl": "./",
+    "module": "nodenext",
+    "target": "esnext",
+    "outDir": "dist",
+    "moduleResolution": "nodenext",
+    "lib": ["esnext"],
+    "removeComments": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "skipLibCheck": true,
+    "paths": {
+      "@controller/*": ["controller/*"],
+      "@models/*": ["models/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@routes/*": ["routes/*"],
+      "@middleware/*": ["middleware/*"]
+    }
+  }
+}

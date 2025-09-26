@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LeaderboardEntry from '../components/Leaderboard';
 
 export default function Leaderboard() {
-  // TODO: Add list virtualization for better performance with large datasets
   const [players, setPlayers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Leaderboard - Tic Tac Toe';
@@ -51,7 +52,13 @@ export default function Leaderboard() {
             )}
           </div>
         </div>
-      </div>
+      </div>{' '}
+      <button
+        className='mt-4 px-4 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition'
+        onClick={() => navigate(-1)}
+      >
+        Go Back
+      </button>
     </div>
   );
 }

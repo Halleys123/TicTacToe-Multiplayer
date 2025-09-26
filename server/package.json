@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon dist/server.js ",
+    "watch": "tsc -w",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "cross-env": "^10.0.0",
+    "typescript": "^5.9.2"
+  }
+}

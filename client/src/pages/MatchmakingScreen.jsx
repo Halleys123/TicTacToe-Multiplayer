@@ -10,7 +10,7 @@ export default function MatchmakingScreen() {
   }
 
   return (
-    <div className='min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 text-white p-4'>
+    <div className='min-h-screen flex flex-col items-center justify-center  text-white p-4'>
       <div className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center'>
         <div className='flex flex-col items-center gap-6'>
           <h1 className='text-3xl md:text-4xl font-bold tracking-wide drop-shadow'>
