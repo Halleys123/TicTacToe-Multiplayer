@@ -1,4 +1,5 @@
 import catchAsync from '@utils/catchAsync.js';
+import { env } from '@utils/listEnv.js';
 import sendResponse from '@utils/sendResponse.js';
 import { Request, Response } from 'express';
 import { OAuth2Client, VerifyIdTokenOptions } from 'google-auth-library';
@@ -20,10 +21,12 @@ const login = catchAsync(async (req: Request, res: Response) => {
     return;
   }
 
-  const ticket = await client.verifyIdToken({
+  const idTokenOption: VerifyIdTokenOptions = {
     idToken: token,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  } as VerifyIdTokenOptions);
+    audience: env.GOOGLE_CLIENT_ID,
+  };
+
+  const ticket = await client.verifyIdToken(idTokenOption);
   const payload = ticket.getPayload();
 
   if (!payload) {

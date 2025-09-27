@@ -1,11 +1,12 @@
 import AppError from '@utils/AppError.js';
 import sendResponse from '@utils/sendResponse.js';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
-export default async function ErrorHandler(
+export default function ErrorHandler(
   err: AppError,
   _req: Request,
-  res: Response
+  res: Response,
+  _next: NextFunction
 ) {
   const message: string = err.message;
   let statusCode: number = 500;

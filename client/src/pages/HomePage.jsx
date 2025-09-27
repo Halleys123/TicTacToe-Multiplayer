@@ -27,11 +27,11 @@ export default function HomePage() {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem('google_token', token);
+      localStorage.setItem('google_token', `Bearer ${token}`);
 
       login(token, setIsLoggedIn);
 
-      window.location.hash = ''; // Clear the hash to prevent re-processing
+      window.location.hash = '';
     }
   }, [token, setIsLoggedIn]);
 

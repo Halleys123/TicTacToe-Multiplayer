@@ -1,16 +1,10 @@
-import { Request, Response } from 'express';
-import sendResponse from '@utils/sendResponse.js';
+import { Request, Response, NextFunction } from 'express';
+import AppError from '@utils/AppError.js';
 
-export default async function InvalidRoute() {
-  (_req: Request, res: Response) => {
-    const response: IResponse = {
-      message: 'This route is not defined',
-      status: 'error',
-      statusCode: 400,
-      data: null,
-      success: false,
-    };
-
-    sendResponse(res, response);
-  };
+export default function InvalidRoute(
+  _req: Request,
+  _res: Response,
+  next: NextFunction
+) {
+  next(new AppError('Route not found', 404));
 }

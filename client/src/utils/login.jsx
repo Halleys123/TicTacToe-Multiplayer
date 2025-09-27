@@ -1,11 +1,16 @@
 export default async function login(token, setIsLoggedIn) {
-  const response = await fetch('http://localhost:5173/api/auth/google', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ token }),
-  });
+  console.log('Logging in with token:', token);
+  console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    }
+  );
   const data = await response.json();
 
   if (data.success) {
