@@ -1,10 +1,8 @@
-import { Router, Request, Response } from 'express';
+import login from '@controller/AuthController/login.js';
+import { Router } from 'express';
 
 const AuthRouter = Router();
 
-AuthRouter.get('/test', (_req: Request, res: Response) => {
-  res.send('Working');
-});
-// AuthRouter.post('/login');
+AuthRouter.post('/login', login);
 
 export default AuthRouter;
