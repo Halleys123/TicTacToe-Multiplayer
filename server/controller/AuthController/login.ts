@@ -3,6 +3,7 @@ import { env } from '@utils/listEnv.js';
 import sendResponse from '@utils/sendResponse.js';
 import { Request, Response } from 'express';
 import { OAuth2Client, VerifyIdTokenOptions } from 'google-auth-library';
+import UserModel from '@models/UserModel.js';
 
 const client = new OAuth2Client();
 
@@ -52,7 +53,6 @@ const login = catchAsync(async (req: Request, res: Response) => {
     return;
   }
 
-  // You can extract user info from payload
   const userInfo = {
     email: payload.email,
     name: payload.name,
@@ -60,13 +60,39 @@ const login = catchAsync(async (req: Request, res: Response) => {
     sub: payload.sub,
   };
 
-  sendResponse(res, {
-    data: userInfo,
-    message: 'Login successful.',
-    statusCode: 200,
-    success: true,
-    status: 'success',
+  const isUser: IUser | null = await UserModel.findOne({
+    email: userInfo.email,
   });
+
+  // genereate tokens in either case
+
+  if (isUser) {
+    const response: IResponse = {
+      message: 'Already a user logging you in',
+      statusCode: 200,
+      status: 'success',
+      success: true,
+      data: isUser,
+    };
+
+    sendResponse(res, response);
+  } else {
+    const user: IUser = new UserModel({
+      username: crypto.randomUUID(),
+      displayName: userInfo.name,
+      email: userInfo.email,
+    });
+
+    await user.save();
+
+    sendResponse(res, {
+      data: userInfo,
+      message: 'Login successful.',
+      statusCode: 200,
+      success: true,
+      status: 'success',
+    });
+  }
 });
 
 export default login;

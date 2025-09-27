@@ -1,9 +1,10 @@
-import { Model, Schema } from 'mongoose';
+import { model, Model, Schema } from 'mongoose';
 
 const UserSchema: Schema<IUser> = new Schema({
   googleId: {
     type: String,
     required: true,
+    unique: true,
   },
   displayName: {
     type: String,
@@ -15,6 +16,6 @@ const UserSchema: Schema<IUser> = new Schema({
   },
 });
 
-const UserModel: Model<IUser> = new Model('Users', UserSchema);
+const UserModel: Model<IUser> = model('Users', UserSchema);
 
 export default UserModel;

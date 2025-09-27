@@ -3,7 +3,7 @@ import AuthContext from '../context/AuthContext';
 import login from '../utils/login';
 
 export default function AuthProvider({ children }) {
-  const [loggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const google_token = localStorage.getItem('google_token');
@@ -13,7 +13,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loggedIn, setIsLoggedIn }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );

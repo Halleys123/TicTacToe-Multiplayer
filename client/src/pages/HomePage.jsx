@@ -9,8 +9,8 @@ export default function HomePage() {
   const gameState = useGameState();
   const { isLoggedIn, setIsLoggedIn } = useAuth();
 
-  const token = new URLSearchParams(window.location.hash.substring(1)).get(
-    'access_token'
+  const idToken = new URLSearchParams(window.location.hash.substring(1)).get(
+    'id_token'
   );
 
   async function handleGoogleLogin() {
@@ -19,21 +19,22 @@ export default function HomePage() {
     const redirect_uri = encodeURIComponent('http://localhost:5173'); // Replace with your actual redirect URI
     const client_id =
       '129356442981-itj68qtg1atta4chd5nocb80er5ketim.apps.googleusercontent.com'; // Replace with your actual client ID
-    const scope = encodeURIComponent('email profile');
-    const response_type = 'token';
+    const scope = encodeURIComponent('email profile openid  ');
+    const response_type = 'id_token';
+    const nonce = crypto.randomUUID();
 
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}`;
+    localStorage.setItem('google_nonce', nonce);
+
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}&nonce=${nonce}`;
   }
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('google_token', `Bearer ${token}`);
-
-      login(token, setIsLoggedIn);
-
+    if (idToken) {
+      localStorage.setItem('google_token', idToken);
+      login(idToken, setIsLoggedIn);
       window.location.hash = '';
     }
-  }, [token, setIsLoggedIn]);
+  }, [idToken, setIsLoggedIn]);
 
   return (
     <div className='min-h-screen w-full bg-gradient-to-br  flex items-center justify-center p-6'>
@@ -116,7 +117,17 @@ export default function HomePage() {
                 Continue with Google
               </button>
             ) : (
-              <button className=''>Log Out</button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('google_token');
+                  localStorage.removeItem('google_nonce');
+                  localStorage.removeItem('access_token');
+                  setIsLoggedIn(false);
+                }}
+                className='w-full bg-red-400 h-11 rounded-md text-white font-PressStart2P'
+              >
+                Log Out
+              </button>
             )}
           </div>
         </div>

@@ -1,6 +1,7 @@
 export default async function login(token, setIsLoggedIn) {
   console.log('Logging in with token:', token);
   console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
+
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
     {
