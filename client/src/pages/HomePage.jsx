@@ -3,11 +3,13 @@ import useGameState from '../hooks/useGameState';
 import { useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
 import login from '../utils/login';
+import useLoading from '../hooks/useLoading';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const gameState = useGameState();
   const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { loading, setLoading } = useLoading();
 
   const idToken = new URLSearchParams(window.location.hash.substring(1)).get(
     'id_token'
@@ -19,7 +21,7 @@ export default function HomePage() {
     const redirect_uri = encodeURIComponent('http://localhost:5173'); // Replace with your actual redirect URI
     const client_id =
       '129356442981-itj68qtg1atta4chd5nocb80er5ketim.apps.googleusercontent.com'; // Replace with your actual client ID
-    const scope = encodeURIComponent('email profile openid  ');
+    const scope = encodeURIComponent('email profile openid');
     const response_type = 'id_token';
     const nonce = crypto.randomUUID();
 
@@ -31,10 +33,10 @@ export default function HomePage() {
   useEffect(() => {
     if (idToken) {
       localStorage.setItem('google_token', idToken);
-      login(idToken, setIsLoggedIn);
+      login(idToken, setIsLoggedIn, setLoading);
       window.location.hash = '';
     }
-  }, [idToken, setIsLoggedIn]);
+  }, [idToken, setIsLoggedIn, setLoading]);
 
   return (
     <div className='min-h-screen w-full bg-gradient-to-br  flex items-center justify-center p-6'>
@@ -52,28 +54,31 @@ export default function HomePage() {
 
           <div className='px-6 pb-6 flex flex-col gap-3'>
             <button
+              disabled={loading}
               onClick={() => {
                 navigate('/game?mode=local-multiplayer');
                 gameState.setGameMode('local-multiplayer');
               }}
-              className='w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors'
+              className='w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:hover:bg-blue-300 text-white font-semibold transition-colors'
             >
               Local multiplayer
             </button>
 
             <button
+              disabled={loading}
               onClick={() => {
                 navigate('/multiplayer-options');
                 gameState.setGameMode('online-multiplayer');
               }}
-              className='w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-semibold transition-colors'
+              className='w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-emerald-300 disabled:hover:bg-emerald-300 text-white font-semibold transition-colors'
             >
-              Multiplayer (coming soon)
+              Multiplay er (coming soon)
             </button>
 
             <button
+              disabled={loading}
               onClick={() => navigate('/leaderboard')}
-              className='w-full h-12 rounded-lg bg-purple-600/90 hover:bg-purple-600 text-white font-semibold transition-colors'
+              className='w-full h-12 rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-purple-300 disabled:hover:bg-purple-300 text-white font-semibold transition-colors'
             >
               Leaderboard
             </button>
@@ -87,8 +92,9 @@ export default function HomePage() {
             </div>
             {!isLoggedIn ? (
               <button
+                disabled={loading}
                 onClick={handleGoogleLogin}
-                className='w-full h-11 rounded-lg border border-gray-300 dark:border-white/15 bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium flex items-center justify-center gap-3 transition-colors'
+                className='w-full disabled:cursor-not-allowed h-11 rounded-lg border border-gray-300 dark:border-white/15 bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium flex items-center justify-center gap-3 transition-colors'
               >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
@@ -118,13 +124,14 @@ export default function HomePage() {
               </button>
             ) : (
               <button
+                disabled={loading}
                 onClick={() => {
                   localStorage.removeItem('google_token');
                   localStorage.removeItem('google_nonce');
                   localStorage.removeItem('access_token');
                   setIsLoggedIn(false);
                 }}
-                className='w-full bg-red-400 h-11 rounded-md text-white font-PressStart2P'
+                className='w-full disabled:cursor-not-allowed bg-red-400 h-11 rounded-md text-white font-PressStart2P'
               >
                 Log Out
               </button>

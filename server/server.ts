@@ -1,7 +1,10 @@
 import '@utils/setupEnv.js';
+import '@utils/connectDb.js';
+
 import app from './app.js';
-import initSockets from '@services/sockets/index.js';
+
 import { env } from '@utils/listEnv.js';
+import initSockets from '@services/sockets/index.js';
 
 initSockets();
 
