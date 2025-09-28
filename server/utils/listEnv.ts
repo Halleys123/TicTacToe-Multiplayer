@@ -6,6 +6,8 @@ type EnvConfig = {
   MONGO_URI: string;
   MONGO_USERNAME: string;
   MONGO_PASSWORD: string;
+  JWT_TTL: string;
+  JWT_SECRET: string;
 };
 
 export const env: EnvConfig = new Proxy<EnvConfig>(
@@ -17,6 +19,8 @@ export const env: EnvConfig = new Proxy<EnvConfig>(
     MONGO_URI: process.env.MONGO_URI || '',
     MONGO_USERNAME: process.env.MONGO_USERNAME || '',
     MONGO_PASSWORD: process.env.MONGO_PASSWORD || '',
+    JWT_SECRET: process.env.JWT_SECRET || '',
+    JWT_TTL: process.env.JWT_TTL || '',
   },
   {
     get(target: EnvConfig, prop: keyof EnvConfig) {

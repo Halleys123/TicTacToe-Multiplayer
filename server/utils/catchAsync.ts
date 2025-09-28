@@ -1,13 +1,15 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 
-export default function catchAsync(
-  fn: (req: Request, res: Response, next: NextFunction) => any
-) {
+type AsyncRequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<unknown>;
+
+function catchAsync(fn: AsyncRequestHandler): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      Promise.resolve(fn(req, res, next)).catch(next);
-    } catch (err) {
-      next(err);
-    }
+    Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
+
+export default catchAsync;

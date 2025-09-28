@@ -4,6 +4,7 @@ import sendResponse from '@utils/sendResponse.js';
 import { Request, Response } from 'express';
 import { OAuth2Client, VerifyIdTokenOptions } from 'google-auth-library';
 import UserModel from '@models/UserModel.js';
+import generateJwt from '@utils/generateJwt.js';
 
 const client = new OAuth2Client();
 
@@ -64,15 +65,20 @@ const login = catchAsync(async (req: Request, res: Response) => {
     email: userInfo.email,
   });
 
-  // genereate tokens in either case
+  const tokenPayload: { [key: string]: string } = {};
 
+  // TODO: Unify these two into one
   if (isUser) {
+    tokenPayload._id = String(isUser._id);
+
+    const jwtToken: string = generateJwt(tokenPayload);
+
     const response: IResponse = {
       message: 'Already a user logging you in',
       statusCode: 200,
       status: 'success',
       success: true,
-      data: isUser,
+      data: { ...isUser, token: jwtToken },
     };
 
     sendResponse(res, response);
@@ -85,8 +91,11 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
     await user.save();
 
+    tokenPayload._id = String(user._id);
+    const jwtToken: string = generateJwt(tokenPayload);
+
     sendResponse(res, {
-      data: userInfo,
+      data: { ...userInfo, token: jwtToken },
       message: 'Login successful.',
       statusCode: 200,
       success: true,

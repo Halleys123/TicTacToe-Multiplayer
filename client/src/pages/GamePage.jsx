@@ -81,6 +81,7 @@ export default function GamePage() {
           winner={winner}
           setWinner={setWinner}
           setWincount={setWincount}
+          winCount={winCount}
         />
 
         <div className='flex flex-row mt-8 justify-between items-center'>

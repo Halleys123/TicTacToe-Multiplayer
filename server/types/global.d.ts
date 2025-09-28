@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import express from 'express';
 
 declare global {
   interface IUser extends Document {
@@ -14,6 +15,18 @@ declare global {
     success: boolean;
     status: 'success' | 'fail' | 'error';
     stack?: any;
+  }
+
+  interface ITokenVerification {
+    success: boolean;
+    errorMessage: null | string;
+    data: IUser | null;
+    statusCode: number;
+  }
+  namespace Express {
+    interface Request {
+      user: IUser;
+    }
   }
 }
 

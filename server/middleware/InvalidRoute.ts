@@ -1,10 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { RequestHandler } from 'express';
 import AppError from '@utils/AppError.js';
 
-export default function InvalidRoute(
-  _req: Request,
-  _res: Response,
-  next: NextFunction
-) {
+const InvalidRoute: RequestHandler = (_req, _res, next) => {
   next(new AppError('Route not found', 404));
-}
+};
+
+export default InvalidRoute;

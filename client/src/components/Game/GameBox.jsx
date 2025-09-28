@@ -69,6 +69,7 @@ export default function GameBox({
           <GameButton
             key={`${rowIndex}-${colIndex}`}
             state={state}
+            delay={(rowIndex * 3 + colIndex) * 0.1}
             onClick={() => handleButtonClick(rowIndex, colIndex)}
           />
         ))

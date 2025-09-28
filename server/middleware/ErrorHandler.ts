@@ -1,13 +1,9 @@
 import AppError from '@utils/AppError.js';
 import sendResponse from '@utils/sendResponse.js';
-import { Request, Response, NextFunction } from 'express';
+import { ErrorRequestHandler } from 'express';
 
-export default function ErrorHandler(
-  err: AppError,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) {
+// Explicitly annotate as ErrorRequestHandler so Express' app.use overload resolves correctly
+const ErrorHandler: ErrorRequestHandler = (err: AppError, _req, res, _next) => {
   const message: string = err.message;
   let statusCode: number = 500;
   if (err.isOperational) {
@@ -24,4 +20,6 @@ export default function ErrorHandler(
   };
 
   sendResponse(res, response);
-}
+};
+
+export default ErrorHandler;

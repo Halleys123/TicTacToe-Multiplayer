@@ -1,6 +1,11 @@
 const allowedStates = [null, 'X', 'O'];
+import { motion } from 'motion/react';
 
-export default function GameButton({ state = null, onClick = () => {} }) {
+export default function GameButton({
+  state = null,
+  onClick = () => {},
+  delay = 0,
+}) {
   if (!allowedStates.includes(state)) {
     throw new Error('Invalid state for GameButton');
   }
@@ -25,7 +30,13 @@ export default function GameButton({ state = null, onClick = () => {} }) {
   };
 
   return (
-    <button onClick={onClick} disabled={!!state} className={getButtonClasses()}>
+    <motion.button
+      animate={{ opacity: [0, 1] }}
+      transition={{ duration: 0.1, delay: delay }}
+      onClick={onClick}
+      disabled={!!state}
+      className={getButtonClasses()}
+    >
       {state && (
         <span
           className={`${getSymbolColor()} animate-bounce-in`}
@@ -39,6 +50,6 @@ export default function GameButton({ state = null, onClick = () => {} }) {
           {state}
         </span>
       )}
-    </button>
+    </motion.button>
   );
 }
