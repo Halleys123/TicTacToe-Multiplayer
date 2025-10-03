@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useBeforeUnload, useNavigate } from 'react-router-dom';
 import useLoading from '../hooks/useLoading';
 import useSocket from '../hooks/useSocket';
 
@@ -32,7 +32,20 @@ export default function MatchmakingScreen() {
   const { setLoading } = useLoading();
   const { socket } = useSocket();
 
-  function goBack() {
+  async function goBack() {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/game/cancel-match-make`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    alert(data.message);
     navigate('/');
   }
 
@@ -71,6 +84,40 @@ export default function MatchmakingScreen() {
       socket.off('match_found', handleMatchFound);
     };
   }, [socket, navigate]);
+
+  useBeforeUnload((event) => {
+    // Prevent default behavior and trigger cleanup
+    event.preventDefault();
+
+    // Make synchronous request using navigator.sendBeacon for reliability
+    const url = `${import.meta.env.VITE_BACKEND_URL}/game/cancel-match-make`;
+    const token = localStorage.getItem('access_token');
+
+    navigator.sendBeacon(
+      url,
+      JSON.stringify({
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+  });
+
+  useEffect(() => {
+    const handlePopState = async (event) => {
+      event.preventDefault();
+      await goBack();
+    };
+
+    // Push a dummy state to prevent immediate back navigation
+    window.history.pushState(null, '', window.location.pathname);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   const PlayerCard = ({ title, player, isSearching }) => (
     <div className='flex-1 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50'>
