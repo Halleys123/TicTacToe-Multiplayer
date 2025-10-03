@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import GameBox from '../components/Game/GameBox';
 import useSocket from '../hooks/useSocket';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function GamePage() {
   const { socket } = useSocket();
+  const onlineGame = useLocation().search.includes('mode=online-multiplayer');
+
   const navigate = useNavigate();
 
   const [gameState, setGameState] = useState([
@@ -22,11 +24,93 @@ export default function GamePage() {
   const [winner, setWinner] = useState(null);
 
   function onClickTile(row, col) {
-    socket?.emit('game_update', { row, col });
+    if (onlineGame) {
+      socket?.emit('game_update', { row, col });
+      return;
+    }
+    let turn = myTurn ? 'X' : 'O';
+
+    if (winner) return;
+    if (gameState[row][col] !== '') return;
+
+    const newState = [...gameState];
+    newState[row] = [...newState[row]];
+    newState[row][col] = turn;
+
+    setGameState(newState);
+
+    // winner check
+    // Row check
+    if (
+      newState[row][0] === turn &&
+      newState[row][1] === turn &&
+      newState[row][2] === turn
+    ) {
+      setWinner(turn);
+      setMessage(`${turn} wins!`);
+      return;
+    }
+    // Column check
+    if (
+      newState[0][col] === turn &&
+      newState[1][col] === turn &&
+      newState[2][col] === turn
+    ) {
+      setWinner(turn);
+      setMessage(`${turn} wins!`);
+
+      return;
+    }
+
+    // Diagonal check
+    if (row === col) {
+      if (
+        newState[0][0] === turn &&
+        newState[1][1] === turn &&
+        newState[2][2] === turn
+      ) {
+        setWinner(turn);
+        setMessage(`${turn} wins!`);
+
+        return;
+      }
+    }
+    if (row + col === 2) {
+      if (
+        newState[0][2] === turn &&
+        newState[1][1] === turn &&
+        newState[2][0] === turn
+      ) {
+        setWinner(turn);
+        setMessage(`${turn} wins!`);
+        return;
+      }
+    }
+
+    // Tie check
+    if (newState.flat().every((cell) => cell !== '')) {
+      setMessage(`It's a tie!`);
+      setWinner('tie');
+      return;
+    }
+
+    setMyTurn(!myTurn);
+    localStorage.setItem('my_turn', (!myTurn).toString());
+  }
+
+  function onRestart() {
+    if (!onlineGame) {
+      setGameState([
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', ''],
+      ]);
+      setWinner(null);
+    }
   }
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !onlineGame) return;
 
     const handleGameMessage = (data) => {
       console.log('Game update received:', data);
@@ -93,7 +177,7 @@ export default function GamePage() {
       socket.off('game_current_turn', gameCurrentTurnHandler);
       socket.off('match_found', matchFoundHandler);
     };
-  }, [socket, navigate]);
+  }, [socket, navigate, onlineGame]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>
@@ -101,7 +185,7 @@ export default function GamePage() {
         <div
           id='invisible-wall'
           className={
-            !myTurn
+            !myTurn && onlineGame
               ? 'absolute top-0 left-0 h-screen w-screen z-10 cursor-not-allowed'
               : 'hidden'
           }
@@ -150,7 +234,7 @@ export default function GamePage() {
 
           <div className='flex-1 flex flex-row-reverse justify-end'>
             <button
-              // onClick={restartGame}
+              onClick={onRestart}
               className='px-4 py-2 bg-blue-600 hover:bg-blue-700 ml-2 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
             >
               Restart

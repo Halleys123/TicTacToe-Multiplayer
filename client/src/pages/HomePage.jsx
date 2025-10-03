@@ -1,5 +1,4 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import useGameState from '../hooks/useGameState';
 import { useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
 import login from '../utils/login';
@@ -8,7 +7,6 @@ import useSocket from '../hooks/useSocket';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const gameState = useGameState();
   const { socket, setSocket } = useSocket();
 
   const { isLoggedIn, setIsLoggedIn } = useAuth();
@@ -63,8 +61,7 @@ export default function HomePage() {
             <button
               disabled={loading}
               onClick={() => {
-                navigate('/game?mode=local-multiplayer');
-                gameState.setGameMode('local-multiplayer');
+                navigate('/game');
               }}
               className='w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:hover:bg-blue-300 text-white font-semibold transition-colors'
             >
@@ -75,20 +72,19 @@ export default function HomePage() {
               disabled={loading || !isLoggedIn}
               onClick={() => {
                 navigate('/multiplayer-options');
-                gameState.setGameMode('online-multiplayer');
               }}
               className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-emerald-300 disabled:hover:bg-emerald-300 text-white font-semibold transition-colors'
             >
               Multiplayer
             </button>
 
-            <button
+            {/* <button
               disabled={loading || !isLoggedIn}
               onClick={() => navigate('/leaderboard')}
               className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-purple-300 disabled:hover:bg-purple-300 text-white font-semibold transition-colors'
             >
               Leaderboard
-            </button>
+            </button> */}
 
             <div className='relative my-2'>
               <div className='flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 select-none'>

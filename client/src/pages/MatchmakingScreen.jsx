@@ -63,7 +63,7 @@ export default function MatchmakingScreen() {
         localStorage.setItem('my_turn', data.myTurn.toString());
       }
 
-      navigate(`/game?id=${data.gameId}`);
+      navigate(`/game?mode=online&id=${data.gameId}`);
     };
 
     socket.on('match_found', handleMatchFound);
