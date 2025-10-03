@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useLoading from '../hooks/useLoading';
 import useSocket from '../hooks/useSocket';
 
-async function startMatchMaking(setLoading, setOtherPlayer) {
+async function startMatchMaking(setLoading) {
   setLoading(true);
 
   const res = await fetch(
@@ -29,8 +29,8 @@ export default function MatchmakingScreen() {
   const [player, setPlayer] = useState(null);
   const [otherPlayer, setOtherPlayer] = useState(null);
 
-  const { loading, setLoading } = useLoading();
-  const { socket, setSocket } = useSocket();
+  const { setLoading } = useLoading();
+  const { socket } = useSocket();
 
   function goBack() {
     navigate('/');
