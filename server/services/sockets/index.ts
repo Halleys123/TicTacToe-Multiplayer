@@ -78,6 +78,7 @@ function initSockets() {
       'socket_id',
       socket.id
     );
+    await redisClient.expire(userIdKey(String(user?._id)), 72000);
 
     const isPlayerInGame: string | null = await redisClient.hGet(
       userIdKey(String(user._id)),
