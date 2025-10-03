@@ -8,6 +8,19 @@ declare global {
     email?: string;
   }
 
+  interface IGame extends Document {
+    game_id: string;
+    player_one_id: mongoose.Types.ObjectId;
+    player_two_id: mongoose.Types.ObjectId;
+
+    player_one_move: string;
+    player_two_move: string;
+
+    winner: mongoose.Types.ObjectId;
+
+    final_board: string[][];
+  }
+
   interface IResponse {
     data: any;
     message: string;
@@ -23,9 +36,10 @@ declare global {
     data: IUser | null;
     statusCode: number;
   }
+
   namespace Express {
     interface Request {
-      user: IUser;
+      user?: IUser;
     }
   }
 }

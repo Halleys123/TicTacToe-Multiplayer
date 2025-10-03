@@ -25,7 +25,10 @@ export default function MultiplayerModal() {
         </p>
         <div className='w-full border-t border-gray-500 my-4'></div>
         <div className='flex flex-col gap-4 mt-4'>
-          <button className='cursor-pointer w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white font-semibold transition-colors'>
+          <button
+            disabled
+            className='cursor-pointer w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-emerald-300 disabled:hover:bg-emerald-300 disabled:cursor-not-allowed text-white font-semibold transition-colors'
+          >
             With a Friend
           </button>
           <button

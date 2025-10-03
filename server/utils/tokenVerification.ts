@@ -12,7 +12,8 @@ export default async function tokenVerification(
     statusCode: 500,
   };
   try {
-    if (typeof token != 'string' || typeof token != 'undefined') {
+    console.log(typeof token);
+    if (typeof token != 'string' || !token) {
       reply.errorMessage = 'Invalid token type';
       return reply;
     }

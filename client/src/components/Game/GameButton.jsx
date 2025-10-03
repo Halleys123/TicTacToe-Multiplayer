@@ -1,4 +1,4 @@
-const allowedStates = [null, 'X', 'O'];
+const allowedStates = ['', 'X', 'O'];
 import { motion } from 'motion/react';
 
 export default function GameButton({

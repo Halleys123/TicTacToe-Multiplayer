@@ -19,6 +19,11 @@ export default async function login(token, setIsLoggedIn, setLoading) {
 
   if (data.success) {
     console.log('Login successful:', data);
+    localStorage.setItem('access_token', data.data.token);
+    // name, email, _id
+    localStorage.setItem('user_name', data.data.displayName);
+    localStorage.setItem('user_email', data.data.email);
+    localStorage.setItem('user_id', data.data._id);
     setIsLoggedIn(true);
   } else {
     console.error('Login failed:', data);

@@ -4,10 +4,13 @@ import { useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
 import login from '../utils/login';
 import useLoading from '../hooks/useLoading';
+import useSocket from '../hooks/useSocket';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const gameState = useGameState();
+  const { socket, setSocket } = useSocket();
+
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const { loading, setLoading } = useLoading();
 
@@ -38,6 +41,10 @@ export default function HomePage() {
     }
   }, [idToken, setIsLoggedIn, setLoading]);
 
+  useEffect(() => {
+    document.title = 'Home - Tic Tac Toe';
+  }, []);
+
   return (
     <div className='min-h-screen w-full bg-gradient-to-br  flex items-center justify-center p-6'>
       <Outlet />
@@ -65,20 +72,20 @@ export default function HomePage() {
             </button>
 
             <button
-              disabled={loading}
+              disabled={loading || !isLoggedIn}
               onClick={() => {
                 navigate('/multiplayer-options');
                 gameState.setGameMode('online-multiplayer');
               }}
-              className='w-full h-12 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-emerald-300 disabled:hover:bg-emerald-300 text-white font-semibold transition-colors'
+              className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-emerald-300 disabled:hover:bg-emerald-300 text-white font-semibold transition-colors'
             >
-              Multiplay er (coming soon)
+              Multiplayer
             </button>
 
             <button
-              disabled={loading}
+              disabled={loading || !isLoggedIn}
               onClick={() => navigate('/leaderboard')}
-              className='w-full h-12 rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-purple-300 disabled:hover:bg-purple-300 text-white font-semibold transition-colors'
+              className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-purple-300 disabled:hover:bg-purple-300 text-white font-semibold transition-colors'
             >
               Leaderboard
             </button>
@@ -129,6 +136,8 @@ export default function HomePage() {
                   localStorage.removeItem('google_token');
                   localStorage.removeItem('google_nonce');
                   localStorage.removeItem('access_token');
+                  socket.disconnect();
+                  setSocket(null);
                   setIsLoggedIn(false);
                 }}
                 className='w-full disabled:cursor-not-allowed bg-red-400 h-11 rounded-md text-white font-PressStart2P'

@@ -17,4 +17,5 @@ try {
 } catch (err: any) {
   console.log('MongoDB connection failed');
   console.log(err);
+  process.exit(-1);
 }

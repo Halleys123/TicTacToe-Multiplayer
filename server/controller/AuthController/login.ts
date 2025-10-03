@@ -63,7 +63,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
   const isUser: IUser | null = await UserModel.findOne({
     email: userInfo.email,
-  });
+  }).lean();
 
   const tokenPayload: { [key: string]: string } = {};
 
@@ -83,13 +83,11 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
     sendResponse(res, response);
   } else {
-    const user: IUser = new UserModel({
+    const user = await UserModel.create({
       username: crypto.randomUUID(),
       displayName: userInfo.name,
       email: userInfo.email,
     });
-
-    await user.save();
 
     tokenPayload._id = String(user._id);
     const jwtToken: string = generateJwt(tokenPayload);

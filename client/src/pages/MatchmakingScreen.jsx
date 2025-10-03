@@ -1,60 +1,154 @@
-import useGameState from '../hooks/useGameState';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useLoading from '../hooks/useLoading';
+import useSocket from '../hooks/useSocket';
+
+async function startMatchMaking(setLoading, setOtherPlayer) {
+  setLoading(true);
+
+  const res = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/game/random-match-make`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    }
+  );
+  const data = await res.json();
+  console.log('Matchmaking response:', data);
+
+  setLoading(false);
+
+  alert(data.message);
+}
 
 export default function MatchmakingScreen() {
-  const { myPlayer } = useGameState();
   const navigate = useNavigate();
+  const [player, setPlayer] = useState(null);
+  const [otherPlayer, setOtherPlayer] = useState(null);
+
+  const { loading, setLoading } = useLoading();
+  const { socket, setSocket } = useSocket();
 
   function goBack() {
     navigate('/');
   }
 
-  return (
-    <div className='min-h-screen flex flex-col items-center justify-center  text-white p-4'>
-      <div className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center'>
-        <div className='flex flex-col items-center gap-6'>
-          <h1 className='text-3xl md:text-4xl font-bold tracking-wide drop-shadow'>
-            Matchmaking...
-          </h1>
-          <div className='relative flex items-center justify-center w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-slate-800/70 border border-slate-600 shadow-xl'>
-            <span className='absolute -top-3 -left-3 bg-indigo-600 text-xs px-2 py-1 rounded-md tracking-wider'>
-              YOU
-            </span>
-            <span className='text-7xl font-extrabold select-none'>
-              {myPlayer || 'X'}
-            </span>
-          </div>
-          <div className='flex items-center gap-2 text-sm text-slate-300 animate-pulse'>
-            <span className='inline-block w-2 h-2 rounded-full bg-indigo-400' />
-            <span>Searching for opponent</span>
-            <span className='inline-block w-2 h-2 rounded-full bg-indigo-400' />
-          </div>
-        </div>
+  useEffect(() => {
+    setLoading(true);
+    document.title = 'Matchmaking - Tic Tac Toe';
+    setPlayer({
+      name: localStorage.getItem('user_name') || 'Loading...',
+      id: localStorage.getItem('user_id') || 'Loading...',
+      email: localStorage.getItem('user_email') || 'Loading...',
+    });
+  }, []);
 
-        <div className='relative flex items-center justify-center'>
-          <div className='absolute inset-0 -m-4 blur-3xl opacity-40 bg-gradient-to-tr from-indigo-500 via-fuchsia-500 to-purple-700 rounded-full animate-pulse' />
-          <div className='relative flex items-center justify-center w-64 h-64 md:w-72 md:h-72'>
-            <div className='absolute inset-0 rounded-full border-8 border-slate-700/40 border-t-indigo-400 border-r-fuchsia-400 animate-spin [animation-duration:2800ms]' />
-            <div className='absolute w-44 h-44 md:w-52 md:h-52 rounded-full border-8 border-slate-700/30 border-t-fuchsia-500 border-l-indigo-500 animate-spin [animation-duration:1800ms] [animation-direction:reverse]' />
-            <div className='absolute w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-600 shadow-lg shadow-indigo-900/40 animate-pulse' />
-            <div className='w-4 h-4 rounded-full bg-white/90 shadow ring-2 ring-fuchsia-500/70 animate-ping [animation-duration:1600ms]' />
+  useEffect(() => {
+    socket?.on('match_found', (data) => {
+      console.log('Match found:', data);
+      setOtherPlayer({
+        name: data.otherData.displayName,
+        id: data.otherData._id,
+        email: data.otherData.email,
+      });
+      navigate(`/game?id=${data.gameId}`);
+    });
+
+    return () => {
+      socket?.off('match_found');
+    };
+  }, [socket]);
+
+  return (
+    <div className='w-screen min-h-screen flex items-center justify-center flex-col p-6'>
+      <div className='flex flex-col gap-4 max-w-5xl w-full min-h-96'>
+        <div className='flex flex-row items-center gap-4'>
+          <span className='font-PressStart2P text-xl text-white'>
+            MatchMaking
+          </span>
+          <button
+            className='flex items-center justify-center ml-auto px-4 h-10 rounded-lg bg-red-600/90 hover:bg-red-600 text-white font-semibold transition-colors'
+            onClick={startMatchMaking.bind(this, setLoading, setOtherPlayer)}
+          >
+            Start
+          </button>
+          <button
+            className='flex items-center justify-center ml-4 px-4 h-10 rounded-lg bg-red-600/90 hover:bg-red-600 text-white font-semibold transition-colors'
+            onClick={goBack}
+          >
+            Go Back
+          </button>
+        </div>
+        <div className='flex flex-row flex-1 w-full outline outline-white rounded-2xl'>
+          <div className='flex-1 w-full p-8'>
+            <span className='text-xl font-PressStart2P  font-medium text-white text-center w-full'>
+              Player 1
+            </span>
+
+            <div className='grid grid-cols-2 gap-1 mt-8'>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                Name
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {player?.name || 'Loading...'}
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                ID
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {player?.id || 'Loading...'}
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                Wins
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {player?.wins || 0}
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                Loses
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {player?.loses || 0}
+              </span>
+            </div>
+          </div>
+          <div className='border-l self-stretch border-white'></div>
+          <div className='flex-1 w-full p-8'>
+            <span className='text-xl font-PressStart2P  font-medium text-white text-center w-full'>
+              Player 2
+            </span>
+
+            <div className='grid grid-cols-2 gap-1 mt-8'>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                Name
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {otherPlayer?.name || 'Loading...'}
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                ID
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {otherPlayer?.id || 'Loading...'}
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                Wins
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {otherPlayer?.wins || 0}
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                Loses
+              </span>
+              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
+                {otherPlayer?.loses || 0}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className='mt-10 flex flex-col items-center gap-4'>
-        <div className='text-xs text-slate-400 tracking-wide uppercase'>
-          Opponents online: fetching...
-        </div>
-        <button
-          onClick={goBack}
-          className='group relative px-6 py-3 rounded-lg font-semibold tracking-wide bg-slate-800/70 border border-slate-600 text-slate-200 hover:text-white hover:border-indigo-400 hover:bg-slate-700/70 transition shadow shadow-slate-900/40 overflow-hidden'
-        >
-          <span className='absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-indigo-600/20 via-fuchsia-600/20 to-purple-600/20 transition' />
-          <span className='relative flex items-center gap-2'>
-            <span className='inline-block w-2 h-2 rounded-full bg-rose-500 animate-pulse' />
-            Cancel Matchmaking
-          </span>
-        </button>
       </div>
     </div>
   );
