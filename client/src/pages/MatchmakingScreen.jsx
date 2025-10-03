@@ -58,7 +58,6 @@ export default function MatchmakingScreen() {
         email: data.otherData.email,
       });
 
-      // Store turn info in localStorage so GamePage can access it
       if (data.myTurn !== undefined) {
         localStorage.setItem('my_turn', data.myTurn.toString());
       }
@@ -73,86 +72,85 @@ export default function MatchmakingScreen() {
     };
   }, [socket, navigate]);
 
-  return (
-    <div className='w-screen min-h-screen flex items-center justify-center flex-col p-6'>
-      <div className='flex flex-col gap-4 max-w-5xl w-full min-h-96'>
-        <div className='flex flex-row items-center gap-4'>
-          <span className='font-PressStart2P text-xl text-white'>
-            MatchMaking
+  const PlayerCard = ({ title, player, isSearching }) => (
+    <div className='flex-1 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50'>
+      <div className='flex items-center justify-between mb-6'>
+        <h2 className='text-2xl font-bold text-white font-sans tracking-tight'>
+          {title}
+        </h2>
+        {isSearching && (
+          <div className='flex items-center gap-2'>
+            <div className='w-2 h-2 bg-yellow-400 rounded-full animate-pulse'></div>
+            <span className='text-sm text-yellow-400 font-medium'>
+              Searching...
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between p-3 bg-gray-800/40 rounded-lg'>
+          <span className='text-sm font-medium text-gray-400'>Name</span>
+          <span className='text-base font-semibold text-white'>
+            {player?.name || 'Waiting...'}
           </span>
+        </div>
+        <div className='flex items-center justify-between p-3 bg-gray-800/40 rounded-lg'>
+          <span className='text-sm font-medium text-gray-400'>ID</span>
+          <span className='text-xs font-mono text-gray-300 truncate max-w-[200px]'>
+            {player?.id || 'Waiting...'}
+          </span>
+        </div>
+        <div className='grid grid-cols-2 gap-3'>
+          <div className='p-3 bg-green-900/20 border border-green-700/30 rounded-lg text-center'>
+            <div className='text-2xl font-bold text-green-400'>
+              {player?.wins || 0}
+            </div>
+            <div className='text-xs text-green-300/70 mt-1'>Wins</div>
+          </div>
+          <div className='p-3 bg-red-900/20 border border-red-700/30 rounded-lg text-center'>
+            <div className='text-2xl font-bold text-red-400'>
+              {player?.loses || 0}
+            </div>
+            <div className='text-xs text-red-300/70 mt-1'>Losses</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className='w-screen min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'>
+      <div className='flex flex-col gap-6 max-w-6xl w-full'>
+        {/* Header */}
+        <div className='flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-800/30 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50'>
+          <div className='flex items-center gap-3'>
+            <div className='w-3 h-3 bg-blue-500 rounded-full animate-pulse'></div>
+            <h1 className='text-2xl sm:text-3xl font-bold text-white font-sans'>
+              Finding Match
+            </h1>
+          </div>
           <button
-            className='flex items-center justify-center ml-4 px-4 h-10 rounded-lg bg-red-600/90 hover:bg-red-600 text-white font-semibold transition-colors'
+            className='px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-red-600/50'
             onClick={goBack}
           >
-            Go Back
+            Cancel & Go Back
           </button>
         </div>
-        <div className='flex flex-row flex-1 w-full outline outline-white rounded-2xl'>
-          <div className='flex-1 w-full p-8'>
-            <span className='text-xl font-PressStart2P  font-medium text-white text-center w-full'>
-              Player 1
-            </span>
 
-            <div className='grid grid-cols-2 gap-1 mt-8'>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                Name
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {player?.name || 'Loading...'}
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                ID
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {player?.id || 'Loading...'}
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                Wins
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {player?.wins || 0}
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                Loses
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {player?.loses || 0}
-              </span>
-            </div>
-          </div>
-          <div className='border-l self-stretch border-white'></div>
-          <div className='flex-1 w-full p-8'>
-            <span className='text-xl font-PressStart2P  font-medium text-white text-center w-full'>
-              Player 2
-            </span>
+        {/* Players Section */}
+        <div className='flex flex-col lg:flex-row gap-6'>
+          <PlayerCard title='You' player={player} isSearching={false} />
 
-            <div className='grid grid-cols-2 gap-1 mt-8'>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                Name
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {otherPlayer?.name || 'Loading...'}
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                ID
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {otherPlayer?.id || 'Loading...'}
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                Wins
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {otherPlayer?.wins || 0}
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                Loses
-              </span>
-              <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>
-                {otherPlayer?.loses || 0}
-              </span>
-            </div>
+          <div className='hidden lg:flex items-center justify-center'>
+            <div className='text-4xl text-gray-600 font-bold'>VS</div>
           </div>
+
+          <PlayerCard
+            title='Opponent'
+            player={otherPlayer}
+            isSearching={!otherPlayer}
+          />
         </div>
       </div>
     </div>

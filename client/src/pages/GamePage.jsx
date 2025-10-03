@@ -6,8 +6,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function GamePage() {
   const { socket } = useSocket();
-  const onlineGame = useLocation().search.includes('mode=online-multiplayer');
+  const onlineGame = window.location.search.includes('mode=online');
 
+  console.log(onlineGame);
   const navigate = useNavigate();
 
   const [gameState, setGameState] = useState([
@@ -96,6 +97,10 @@ export default function GamePage() {
 
     setMyTurn(!myTurn);
     localStorage.setItem('my_turn', (!myTurn).toString());
+  }
+
+  function goBack() {
+    navigate('/');
   }
 
   function onRestart() {
@@ -240,7 +245,7 @@ export default function GamePage() {
               Restart
             </button>
             <button
-              // onClick={goBack}
+              onClick={goBack}
               className='px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
             >
               Go Back
