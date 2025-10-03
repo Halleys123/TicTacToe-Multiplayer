@@ -14,8 +14,13 @@ export default function GamePage() {
     ['', '', ''],
   ]);
   const [message, setMessage] = useState('');
-  const [currentTurn, setCurrentTurn] = useState('X');
-  const [myTurn, setMyTurn] = useState(false);
+  // Initialize from localStorage if available (from match_found event)
+  const [myTurn, setMyTurn] = useState(() => {
+    const stored = localStorage.getItem('my_turn');
+    return stored === 'true';
+  });
+  const [winner, setWinner] = useState(null);
+
   function onClickTile(row, col) {
     socket?.emit('game_update', { row, col });
   }
@@ -30,14 +35,13 @@ export default function GamePage() {
         return;
       }
       setGameState(data.data.game_board);
-      setCurrentTurn(data.data[data.data.current_turn]);
       if (localStorage.getItem('user_id') === data.data.current_turn) {
         setMyTurn(true);
       } else {
         setMyTurn(false);
       }
     };
-    socket.on('no_game', () => {
+    const noGameHandler = () => {
       console.log('Not in game');
       alert('Not in game anymore');
       setMessage('Not in game anymore');
@@ -46,16 +50,50 @@ export default function GamePage() {
         ['', '', ''],
         ['', '', ''],
       ]);
-      setCurrentTurn('X');
       setMyTurn(false);
       navigate('/');
-    });
+    };
+    const gameOverHandler = (data) => {
+      console.log('Game over:', data);
+      setMessage(data.message);
+      setGameState(data.data);
+      setMyTurn(false);
+      setWinner(data.winner);
+    };
+
+    const gameCurrentTurnHandler = (currentTurn) => {
+      console.log('Current turn:', currentTurn);
+      if (localStorage.getItem('user_id') == currentTurn) {
+        setMyTurn(true);
+      } else {
+        setMyTurn(false);
+      }
+    };
+
+    const matchFoundHandler = (data) => {
+      console.log('Match found in GamePage:', data);
+      if (data.game?.game_board) {
+        setGameState(data.game.game_board);
+      }
+      if (data.myTurn !== undefined) {
+        setMyTurn(data.myTurn);
+      }
+    };
+
+    socket.on('no_game', noGameHandler);
     socket.on('game_message', handleGameMessage);
+    socket.on('game_over', gameOverHandler);
+    socket.on('game_current_turn', gameCurrentTurnHandler);
+    socket.on('match_found', matchFoundHandler);
 
     return () => {
+      socket.off('no_game', noGameHandler);
       socket.off('game_message', handleGameMessage);
+      socket.off('game_over', gameOverHandler);
+      socket.off('game_current_turn', gameCurrentTurnHandler);
+      socket.off('match_found', matchFoundHandler);
     };
-  }, [socket]);
+  }, [socket, navigate]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>
@@ -96,11 +134,7 @@ export default function GamePage() {
         <div className='flex flex-row mb-8 justify-between items-center'>
           <div className='flex-1 flex flex-row gap-2'>
             <span className='text-xl font-PressStart2P font-medium text-gray-700 dark:text-gray-300'>
-              {/* {winner === 'tie'
-                ? 'Game Tied!'
-                : winner
-                ? `${winner} Won!`
-                : `${currentTurn}'s Turn`} */}
+              {winner === 'tie' ? 'Game Tied!' : winner ? `${winner} Won!` : ``}
             </span>
 
             <span className='text-lg font-PressStart2P font-medium text-gray-600 dark:text-gray-400'>

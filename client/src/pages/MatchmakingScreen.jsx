@@ -39,6 +39,7 @@ export default function MatchmakingScreen() {
   useEffect(() => {
     setLoading(true);
     document.title = 'Matchmaking - Tic Tac Toe';
+    startMatchMaking(setLoading, setOtherPlayer);
     setPlayer({
       name: localStorage.getItem('user_name') || 'Loading...',
       id: localStorage.getItem('user_id') || 'Loading...',
@@ -47,20 +48,30 @@ export default function MatchmakingScreen() {
   }, []);
 
   useEffect(() => {
-    socket?.on('match_found', (data) => {
+    if (!socket) return;
+
+    const handleMatchFound = (data) => {
       console.log('Match found:', data);
       setOtherPlayer({
         name: data.otherData.displayName,
         id: data.otherData._id,
         email: data.otherData.email,
       });
+
+      // Store turn info in localStorage so GamePage can access it
+      if (data.myTurn !== undefined) {
+        localStorage.setItem('my_turn', data.myTurn.toString());
+      }
+
       navigate(`/game?id=${data.gameId}`);
-    });
+    };
+
+    socket.on('match_found', handleMatchFound);
 
     return () => {
-      socket?.off('match_found');
+      socket.off('match_found', handleMatchFound);
     };
-  }, [socket]);
+  }, [socket, navigate]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col p-6'>
@@ -69,12 +80,6 @@ export default function MatchmakingScreen() {
           <span className='font-PressStart2P text-xl text-white'>
             MatchMaking
           </span>
-          <button
-            className='flex items-center justify-center ml-auto px-4 h-10 rounded-lg bg-red-600/90 hover:bg-red-600 text-white font-semibold transition-colors'
-            onClick={startMatchMaking.bind(this, setLoading, setOtherPlayer)}
-          >
-            Start
-          </button>
           <button
             className='flex items-center justify-center ml-4 px-4 h-10 rounded-lg bg-red-600/90 hover:bg-red-600 text-white font-semibold transition-colors'
             onClick={goBack}

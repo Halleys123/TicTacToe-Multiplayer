@@ -86,21 +86,30 @@ function initSockets() {
 
     if (isPlayerInGame) {
       socket.join(isPlayerInGame);
+      console.log(
+        `[Socket ${socket.id}] Player rejoining game:`,
+        isPlayerInGame
+      );
 
-      const game = {
-        ...(await redisClient.hGetAll(gameIdKey(isPlayerInGame))),
-      };
+      // Emit game state after a small delay to ensure client listeners are ready
+      // This fixes race condition in Chrome where listeners aren't attached yet
+      setTimeout(async () => {
+        const game = {
+          ...(await redisClient.hGetAll(gameIdKey(isPlayerInGame))),
+        };
 
-      // Parse the game_board from string to array
-      if (game.game_board) {
-        game.game_board = JSON.parse(game.game_board);
-      }
+        // Parse the game_board from string to array
+        if (game.game_board) {
+          game.game_board = JSON.parse(game.game_board);
+        }
 
-      socket.emit('game_message', {
-        message: 'Rejoined game successfully',
-        data: game,
-        success: true,
-      });
+        console.log(`[Socket ${socket.id}] Emitting game_message for rejoin`);
+        socket.emit('game_message', {
+          message: 'Rejoined game successfully',
+          data: game,
+          success: true,
+        });
+      }, 100); // 100ms delay
     } else {
       socket.emit('no_game', {
         success: false,
@@ -206,8 +215,9 @@ function initSockets() {
       console.log('[game_update] Updated board:', gameBoard);
 
       if (checkWinner(gameBoard, game[userId] || '-', newRow, newCol)) {
-        io?.to(gameId).emit('game_message', {
+        io?.to(gameId).emit('game_over', {
           message: `Game Over player ${userId} won!!!`,
+          winner: game[userId],
           data: gameBoard,
           success: true,
         });

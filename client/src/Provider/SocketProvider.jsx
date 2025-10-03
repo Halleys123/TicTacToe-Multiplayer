@@ -6,6 +6,7 @@ import SocketContext from '../context/SocketContext';
 
 export default function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
   const { isLoggedIn } = useAuth();
 
   useEffect(() => {
@@ -25,27 +26,36 @@ export default function SocketProvider({ children }) {
         },
       });
 
+      // IMPORTANT: Set socket BEFORE connect event
+      // This ensures React updates and child components attach listeners
+      // before server starts emitting events
+      setSocket(newSocket);
+
       newSocket.on('connect', () => {
         console.log('Socket connected:', newSocket.id);
-        setSocket(newSocket);
+        setIsConnected(true);
       });
 
-      newSocket.on('connect_error', (err) =>
-        console.error('Connect error:', err.message)
-      );
+      newSocket.on('connect_error', (err) => {
+        console.error('Connect error:', err.message);
+        setIsConnected(false);
+      });
 
       newSocket.on('auth_error', (msg) => {
         console.error('Auth error:', msg);
         // Optionally disconnect or show user feedback
       });
 
-      newSocket.on('disconnect', (reason) =>
-        console.log('Socket disconnected:', reason)
-      );
+      newSocket.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
+        setIsConnected(false);
+      });
 
       return () => {
         console.log('Cleaning up socket connection');
         newSocket.close();
+        setSocket(null);
+        setIsConnected(false);
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,10 +69,10 @@ export default function SocketProvider({ children }) {
         Socket Status:
         <span
           className={`ml-1 font-mono ${
-            socket?.connected ? 'text-green-500' : 'text-red-500'
+            isConnected ? 'text-green-500' : 'text-red-500'
           }`}
         >
-          {socket?.connected ? 'Connected' : 'Disconnected'}
+          {isConnected ? 'Connected' : 'Disconnected'}
         </span>
       </div>,
       portalRoot

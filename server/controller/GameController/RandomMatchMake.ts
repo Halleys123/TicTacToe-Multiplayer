@@ -105,7 +105,12 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
   const tag = result[0];
 
   if (tag == 'ALREADY_IN_GAME') {
-    response.data = { ...(await redisClient.hGetAll(result[1] || '')) };
+    const existingGameId = result[1];
+    response.data = {
+      ...(await redisClient.hGetAll(
+        typeof existingGameId === 'string' ? existingGameId : ''
+      )),
+    };
     response.message =
       'You are in other game, either quit that or continue that game';
     response.success = false;
@@ -162,22 +167,31 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
 
     const game = { ...(await redisClient.hGetAll(gameIdKey(gameId))) };
 
-    const data = {
-      otherData: await UserModel.findById(p1).lean(),
+    // Parse the game_board for the clients
+    if (game.game_board) {
+      game.game_board = JSON.parse(game.game_board);
+    }
+
+    const p1Data = {
+      otherData: await UserModel.findById(p2).lean(),
       game: game,
+      myTurn: true, // p1 always starts first
     };
 
-    p2Sock.emit('match_found', data);
+    const p2Data = {
+      otherData: await UserModel.findById(p1).lean(),
+      game: game,
+      myTurn: false, // p2 waits
+    };
 
-    data.otherData = await UserModel.findById(p2).lean();
-
-    p1Sock.emit('match_found', data);
+    p1Sock.emit('match_found', p1Data);
+    p2Sock.emit('match_found', p2Data);
 
     response.message = 'Match Found';
     response.data = {
       status: 'matched',
-      myId: p2,
-      otherId: p1,
+      myId: userId === p1 ? p1 : p2,
+      otherId: userId === p1 ? p2 : p1,
       game,
     };
     return sendResponse(res, response);
