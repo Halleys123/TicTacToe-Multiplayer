@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import LeaderboardEntry from '../components/Leaderboard';
 
 export default function Leaderboard() {
-  const [players, setPlayers] = useState([]);
+  const [players] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -24,6 +24,23 @@ async function startMatchMaking(setLoading) {
   alert(data.message);
 }
 
+async function goBack(navigate) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/game/cancel-match-make`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+  alert(data.message);
+  navigate('/');
+}
+
 export default function MatchmakingScreen() {
   const navigate = useNavigate();
   const [player, setPlayer] = useState(null);
@@ -31,23 +48,6 @@ export default function MatchmakingScreen() {
 
   const { setLoading } = useLoading();
   const { socket } = useSocket();
-
-  async function goBack() {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/game/cancel-match-make`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      }
-    );
-
-    const data = await response.json();
-    alert(data.message);
-    navigate('/');
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -58,7 +58,7 @@ export default function MatchmakingScreen() {
       id: localStorage.getItem('user_id') || 'Loading...',
       email: localStorage.getItem('user_email') || 'Loading...',
     });
-  }, []);
+  }, [setLoading]);
 
   useEffect(() => {
     if (!socket) return;
@@ -107,7 +107,7 @@ export default function MatchmakingScreen() {
   useEffect(() => {
     const handlePopState = async (event) => {
       event.preventDefault();
-      await goBack();
+      await goBack(navigate);
     };
 
     // Push a dummy state to prevent immediate back navigation
@@ -117,7 +117,7 @@ export default function MatchmakingScreen() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [navigate]);
 
   const PlayerCard = ({ title, player, isSearching }) => (
     <div className='flex-1 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50'>
@@ -179,7 +179,7 @@ export default function MatchmakingScreen() {
           </div>
           <button
             className='px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-red-600/50'
-            onClick={goBack}
+            onClick={() => goBack(navigate)}
           >
             Cancel & Go Back
           </button>

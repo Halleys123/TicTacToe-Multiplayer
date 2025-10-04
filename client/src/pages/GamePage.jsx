@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import GameBox from '../components/Game/GameBox';
 import useSocket from '../hooks/useSocket';
 import { createPortal } from 'react-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import useMessage from '../hooks/useMessage';
 
 export default function GamePage() {
   const { socket } = useSocket();
@@ -10,13 +11,13 @@ export default function GamePage() {
 
   console.log(onlineGame);
   const navigate = useNavigate();
+  const { addMessage } = useMessage();
 
   const [gameState, setGameState] = useState([
     ['', '', ''],
     ['', '', ''],
     ['', '', ''],
   ]);
-  const [message, setMessage] = useState('');
   // Initialize from localStorage if available (from match_found event)
   const [myTurn, setMyTurn] = useState(() => {
     const stored = localStorage.getItem('my_turn');
@@ -48,7 +49,7 @@ export default function GamePage() {
       newState[row][2] === turn
     ) {
       setWinner(turn);
-      setMessage(`${turn} wins!`);
+      addMessage(`${turn} wins!`, true, 3000);
       return;
     }
     // Column check
@@ -58,7 +59,7 @@ export default function GamePage() {
       newState[2][col] === turn
     ) {
       setWinner(turn);
-      setMessage(`${turn} wins!`);
+      addMessage(`${turn} wins!`, true, 3000);
 
       return;
     }
@@ -71,7 +72,7 @@ export default function GamePage() {
         newState[2][2] === turn
       ) {
         setWinner(turn);
-        setMessage(`${turn} wins!`);
+        addMessage(`${turn} wins!`, true, 3000);
 
         return;
       }
@@ -83,14 +84,14 @@ export default function GamePage() {
         newState[2][0] === turn
       ) {
         setWinner(turn);
-        setMessage(`${turn} wins!`);
+        addMessage(`${turn} wins!`, true, 3000);
         return;
       }
     }
 
     // Tie check
     if (newState.flat().every((cell) => cell !== '')) {
-      setMessage(`It's a tie!`);
+      addMessage(`It's a tie!`, true, 3000);
       setWinner('tie');
       return;
     }
@@ -120,7 +121,7 @@ export default function GamePage() {
     const handleGameMessage = (data) => {
       console.log('Game update received:', data);
       if (data.success === false) {
-        setMessage(data.message);
+        addMessage(data.message, false, 3000);
         return;
       }
       setGameState(data.data.game_board);
@@ -133,7 +134,7 @@ export default function GamePage() {
     const noGameHandler = () => {
       console.log('Not in game');
       alert('Not in game anymore');
-      setMessage('Not in game anymore');
+      addMessage('Not in game anymore', false, 3000);
       setGameState([
         ['', '', ''],
         ['', '', ''],
@@ -144,7 +145,11 @@ export default function GamePage() {
     };
     const gameOverHandler = (data) => {
       console.log('Game over:', data);
-      setMessage(data.message);
+      if (data.winner === 'tie') {
+        addMessage(`Game tied!`, true, 3000);
+      } else {
+        addMessage(`${data.winner} wins!`, true, 3000);
+      }
       setGameState(data.data);
       setMyTurn(false);
       setWinner(data.winner);
@@ -182,7 +187,7 @@ export default function GamePage() {
       socket.off('game_current_turn', gameCurrentTurnHandler);
       socket.off('match_found', matchFoundHandler);
     };
-  }, [socket, navigate, onlineGame]);
+  }, [socket, navigate, onlineGame, addMessage]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>
@@ -197,28 +202,7 @@ export default function GamePage() {
         ></div>,
         document.body
       )}
-      {message &&
-        createPortal(
-          <div className='absolute top-0 left-0 h-screen w-screen z-10 backdrop-blur-xl bg-white/10 flex items-center justify-center fade-in'>
-            <div className='flex flex-col max-w-md p-8 w-full min-h-96 rounded-2xl border border-gray-200/60 dark:border-white/10 bg-white/80 dark:bg-gray-900/70'>
-              <div className='flex flex-row mb-8 justify-between items-center'>
-                <span className='font-PressStart2P text-xl text-white text-center'>
-                  Message from Server
-                </span>
-                <button
-                  onClick={() => setMessage('')}
-                  className='ml-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
-                >
-                  Close
-                </button>
-              </div>
-              <span className='text-white font-PressStart2P text-lg'>
-                {message}
-              </span>
-            </div>
-          </div>,
-          document.body
-        )}
+
       <div className='w-full max-w-xl'>
         <div className='flex flex-row mb-8 justify-between items-center'>
           <div className='flex-1 flex flex-row gap-2'>

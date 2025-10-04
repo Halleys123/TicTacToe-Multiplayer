@@ -12,6 +12,7 @@ import MultiplayerModal from './components/MultiplayerModal';
 import LoadingProvider from './Provider/LoadingProvider';
 import SocketProvider from './Provider/SocketProvider';
 import AuthProvider from './Provider/AuthProvider';
+import MessageProvider from './Provider/MessageProvider';
 
 function App() {
   return (
@@ -19,20 +20,22 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <GeneralLayout>
-            <BrowserRouter>
-              <Routes>
-                <Route path='/' element={<HomePage />}>
-                  <Route
-                    path='multiplayer-options'
-                    element={<MultiplayerModal />}
-                  />
-                </Route>
-                <Route path='/leaderboard' element={<Leaderboard />} />
-                <Route path='/game' element={<GamePage />} />
-                <Route path='/matchmaking' element={<MatchmakingScreen />} />
-                <Route path='/enter-code' element={<MatchmakingScreen />} />
-              </Routes>
-            </BrowserRouter>
+            <MessageProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path='/' element={<HomePage />}>
+                    <Route
+                      path='multiplayer-options'
+                      element={<MultiplayerModal />}
+                    />
+                  </Route>
+                  <Route path='/leaderboard' element={<Leaderboard />} />
+                  <Route path='/game' element={<GamePage />} />
+                  <Route path='/matchmaking' element={<MatchmakingScreen />} />
+                  <Route path='/enter-code' element={<MatchmakingScreen />} />
+                </Routes>
+              </BrowserRouter>
+            </MessageProvider>
           </GeneralLayout>
         </SocketProvider>
       </AuthProvider>
