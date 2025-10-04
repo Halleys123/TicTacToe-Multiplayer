@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import AuthContext from '../context/AuthContext.jsx';
-import login from '../utils/login.jsx';
-import useLoading from '../hooks/useLoading.jsx';
+import AuthContext from '../context/AuthContext';
+import login from '../utils/login';
+import useLoading from '../hooks/useLoading';
 
 export default function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

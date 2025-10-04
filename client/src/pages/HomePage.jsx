@@ -1,11 +1,9 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-
-import useLoading from '../hooks/useLoading.jsx';
-import useSocket from '../hooks/useSocket.jsx';
-import useAuth from '../hooks/useAuth.jsx';
-
-import login from '../utils/login.jsx';
+import useAuth from '../hooks/useAuth';
+import login from '../utils/login';
+import useLoading from '../hooks/useLoading';
+import useSocket from '../hooks/useSocket';
 
 export default function HomePage() {
   const navigate = useNavigate();

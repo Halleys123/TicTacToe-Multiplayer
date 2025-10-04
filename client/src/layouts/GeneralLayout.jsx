@@ -1,4 +1,4 @@
-import Loader from '../components/Loader.jsx';
+import Loader from '../components/Loader';
 
 export default function GeneralLayout({ children }) {
   return (

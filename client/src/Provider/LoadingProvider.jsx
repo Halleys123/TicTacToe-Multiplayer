@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import LoadingContext from '../context/LoadingContext.jsx';
+import LoadingContext from '../context/LoadingContext';
 
 export default function LoadingProvider({ children }) {
   const [loading, setLoading] = useState(false);

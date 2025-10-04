@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
+import GameBox from '../components/Game/GameBox';
+import useSocket from '../hooks/useSocket';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
-
-import useSocket from '../hooks/useSocket.jsx';
-import GameBox from '../components/Game/GameBox.jsx';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function GamePage() {
   const { socket } = useSocket();

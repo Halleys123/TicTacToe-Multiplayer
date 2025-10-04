@@ -1,17 +1,17 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import GeneralLayout from './layouts/GeneralLayout.jsx';
+import GeneralLayout from './layouts/GeneralLayout';
 
-import MatchmakingScreen from './pages/MatchmakingScreen.jsx';
-import Leaderboard from './pages/Leaderboard.jsx';
-import HomePage from './pages/HomePage.jsx';
-import GamePage from './pages/GamePage.jsx';
+import MatchmakingScreen from './pages/MatchmakingScreen';
+import Leaderboard from './pages/Leaderboard';
+import HomePage from './pages/HomePage';
+import GamePage from './pages/GamePage';
 
-import MultiplayerModal from './components/MultiplayerModal.jsx';
+import MultiplayerModal from './components/MultiplayerModal';
 
-import LoadingProvider from './Provider/LoadingProvider.jsx';
-import SocketProvider from './Provider/SocketProvider.jsx';
-import AuthProvider from './Provider/AuthProvider.jsx';
+import LoadingProvider from './Provider/LoadingProvider';
+import SocketProvider from './Provider/SocketProvider';
+import AuthProvider from './Provider/AuthProvider';
 
 function App() {
   return (

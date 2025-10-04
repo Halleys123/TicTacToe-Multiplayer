@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import LoadingContext from '../context/LoadingContext.jsx';
+import LoadingContext from '../context/LoadingContext';
 
 export default function useLoading() {
   const ctx = useContext(LoadingContext);
