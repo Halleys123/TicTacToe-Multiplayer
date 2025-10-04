@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useLoading from '../hooks/useLoading';
+import useLoading from '../hooks/useLoading.jsx';
 
 export default function Loader() {
   const { loading } = useLoading();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useBeforeUnload, useNavigate } from 'react-router-dom';
-import useLoading from '../hooks/useLoading';
-import useSocket from '../hooks/useSocket';
+import useLoading from '../hooks/useLoading.jsx';
+import useSocket from '../hooks/useSocket.jsx';
 
 async function startMatchMaking(setLoading) {
   setLoading(true);

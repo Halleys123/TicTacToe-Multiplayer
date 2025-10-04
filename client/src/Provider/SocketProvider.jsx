@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { io } from 'socket.io-client';
-import useAuth from '../hooks/useAuth';
-import SocketContext from '../context/SocketContext';
+import useAuth from '../hooks/useAuth.jsx';
+import SocketContext from '../context/SocketContext.jsx';
 
 export default function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);

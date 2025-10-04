@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import LeaderboardEntry from '../components/Leaderboard';
+import LeaderboardEntry from '../components/Leaderboard.jsx';
 
 export default function Leaderboard() {
   const [players, setPlayers] = useState([]);

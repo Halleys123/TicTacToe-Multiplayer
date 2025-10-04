@@ -1,4 +1,4 @@
-import GameButton from './GameButton';
+import GameButton from './GameButton.jsx';
 
 export default function GameBox({ gameState, handleButtonClick }) {
   return (
