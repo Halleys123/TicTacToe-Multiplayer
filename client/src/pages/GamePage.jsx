@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import GameBox from '../components/Game/GameBox';
 import useSocket from '../hooks/useSocket';
 import { createPortal } from 'react-dom';
@@ -9,7 +9,9 @@ export default function GamePage() {
   const { socket } = useSocket();
   const onlineGame = window.location.search.includes('mode=online');
 
-  console.log(onlineGame);
+  const timerRef = useRef(0);
+  const timerValRef = useRef(null);
+
   const navigate = useNavigate();
   const { addMessage } = useMessage();
 
@@ -118,13 +120,26 @@ export default function GamePage() {
   useEffect(() => {
     if (!socket || !onlineGame) return;
 
+    const handleGameTimer = (data) => {
+      console.log('Timer update received:', data);
+      let val = Math.ceil(data.data);
+      timerValRef.current.innerText = `Timer: ${val}s`;
+      clearInterval(timerRef.current);
+
+      timerRef.current = setInterval(() => {
+        timerValRef.current.innerText = `Time Elapsed: ${++val}s`;
+      }, 1000);
+    };
+
     const handleGameMessage = (data) => {
       console.log('Game update received:', data);
       if (data.success === false) {
         addMessage(data.message, false, 3000);
         return;
       }
+      console.log(data.data.game_board);
       setGameState(data.data.game_board);
+
       if (localStorage.getItem('user_id') === data.data.current_turn) {
         setMyTurn(true);
       } else {
@@ -145,6 +160,7 @@ export default function GamePage() {
     };
     const gameOverHandler = (data) => {
       console.log('Game over:', data);
+      clearInterval(timerRef.current);
       if (data.winner === 'tie') {
         addMessage(`Game tied!`, true, 3000);
       } else {
@@ -179,6 +195,7 @@ export default function GamePage() {
     socket.on('game_over', gameOverHandler);
     socket.on('game_current_turn', gameCurrentTurnHandler);
     socket.on('match_found', matchFoundHandler);
+    socket.on('timer_update', handleGameTimer);
 
     return () => {
       socket.off('no_game', noGameHandler);
@@ -186,8 +203,10 @@ export default function GamePage() {
       socket.off('game_over', gameOverHandler);
       socket.off('game_current_turn', gameCurrentTurnHandler);
       socket.off('match_found', matchFoundHandler);
+      socket.off('timer_update', handleGameTimer);
+      clearInterval(timerRef.current);
     };
-  }, [socket, navigate, onlineGame, addMessage]);
+  }, [socket, navigate, onlineGame, addMessage, timerRef, timerValRef]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>
@@ -240,6 +259,12 @@ export default function GamePage() {
         <GameBox gameState={gameState} handleButtonClick={onClickTile} />
 
         <div className='flex flex-row mt-8 justify-between items-center'>
+          <span
+            ref={timerValRef}
+            className='text-xl font-PressStart2P font-medium text-gray-700 dark:text-gray-300'
+          >
+            Timer: 20s
+          </span>
           {/* <div className='flex-1'>
             <span className='text-xl font-PressStart2P font-medium text-player-two'>
               X: {winCount.x}

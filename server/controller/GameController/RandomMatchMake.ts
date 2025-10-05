@@ -20,6 +20,7 @@ const addToQueue = `
 -- ARGV[1] = userId
 -- ARGV[2] = game id
 -- ARGV[3] = ttl seconds
+-- ARGV[4] = last move
 
 -- Prevent addition if user already in other match
 local game_id = redis.call("HGET", KEYS[3], "game_id")
@@ -54,7 +55,8 @@ if redis.call("LLEN", KEYS[1]) >= 2 then
     p1, "X",
     p2, "O",
     "game_board", '[["", "", ""], ["", "", ""], ["", "", ""]]',
-    "current_turn", p1
+    "current_turn", p1,
+    "last_move_time", ARGV[4]
   )
 
   redis.call("EXPIRE", KEYS[2], ARGV[3])
@@ -95,7 +97,12 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
 
   const result = await redisClient.eval(addToQueue, {
     keys: [matchQueueKey(), gameIdKey(gameId), userIdKey(userId)],
-    arguments: [userId, gameId, MATCH_TTL_SECONDS.toString()],
+    arguments: [
+      userId,
+      gameId,
+      MATCH_TTL_SECONDS.toString(),
+      Date.now().toString(),
+    ],
   });
 
   if (!result || !Array.isArray(result)) {
@@ -172,6 +179,11 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
       game.game_board = JSON.parse(game.game_board);
     }
 
+    const lastMoveTime = +((await redisClient.hGet(
+      gameIdKey(gameId),
+      'last_move_time'
+    )) as string);
+
     const p1Data = {
       otherData: await UserModel.findById(p2).lean(),
       game: game,
@@ -186,6 +198,12 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
 
     p1Sock.emit('match_found', p1Data);
     p2Sock.emit('match_found', p2Data);
+
+    io.to(roomId).emit('timer_update', {
+      data: (Date.now() - lastMoveTime) / 1000,
+      message: 'Timer updated',
+      success: true,
+    });
 
     response.message = 'Match Found';
     response.data = {

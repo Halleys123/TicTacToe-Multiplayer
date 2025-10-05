@@ -99,6 +99,30 @@ function initSockets() {
           ...(await redisClient.hGetAll(gameIdKey(isPlayerInGame))),
         };
 
+        console.log(`[Socket ${socket.id}] Fetched game data:`, game);
+
+        // Check if game data exists
+        if (!game || Object.keys(game).length === 0) {
+          console.log(`[Socket ${socket.id}] Game not found in Redis`);
+          socket.emit('no_game', {
+            success: false,
+            data: null,
+            message: 'Game not found',
+          });
+          await redisClient.hDel(userIdKey(String(user._id)), 'game_id');
+          return;
+        }
+
+        const timeElapsed = game.last_move_time
+          ? (Date.now() - +(game.last_move_time as string)) / 1000
+          : 0;
+        console.log('[Socket] Timer elapsed:', timeElapsed);
+        socket.emit('timer_update', {
+          data: timeElapsed,
+          message: 'Timer updated',
+          success: true,
+        });
+
         // Parse the game_board from string to array
         if (game.game_board) {
           game.game_board = JSON.parse(game.game_board);
@@ -110,7 +134,7 @@ function initSockets() {
           data: game,
           success: true,
         });
-      }, 100); // 100ms delay
+      }, 200); // Increased delay to 200ms
     } else {
       socket.emit('no_game', {
         success: false,
@@ -118,11 +142,6 @@ function initSockets() {
         message: 'Not in game anymore',
       });
     }
-
-    socket.emit(
-      'message',
-      `Connected to the server your socket id is: ${socket.id}`
-    );
 
     socket.on('game_update', async (data) => {
       const userId = String(user?._id);
@@ -165,7 +184,7 @@ function initSockets() {
 
       const keys = Object.keys(game);
 
-      if (!game || keys.length < 4 || !keys[0] || !keys[1]) {
+      if (!game || keys.length < 5 || !keys[0] || !keys[1]) {
         console.log('[game_update] Game data incomplete or not found:', game);
         socket.emit('game_message', {
           message: 'Game data incomplete or not found',
@@ -174,6 +193,12 @@ function initSockets() {
         });
         return;
       }
+
+      socket.emit('timer_update', {
+        data: (Date.now() - +(game.last_move_time as string)) / 1000,
+        message: 'Timer updated',
+        success: true,
+      });
 
       const gameBoard = JSON.parse(game.game_board || '');
       console.log('[game_update] Parsed players and board:', {
@@ -256,6 +281,13 @@ function initSockets() {
         'game_board',
         JSON.stringify(gameBoard)
       );
+
+      const newLastUpdateTime = Date.now();
+      await redisClient.hSet(
+        gameIdKey(gameId),
+        'last_move_time',
+        newLastUpdateTime.toString()
+      );
       console.log('[game_update] Saved game_board to Redis');
 
       game.game_board = gameBoard;
@@ -263,6 +295,12 @@ function initSockets() {
       io?.to(gameId).emit('game_message', {
         message: 'Game updated successfully',
         data: game,
+        success: true,
+      });
+
+      io?.to(gameId).emit('timer_update', {
+        message: 'New Timer',
+        data: (Date.now() - newLastUpdateTime) / 1000,
         success: true,
       });
       console.log('[game_update] Emitted updated game to client');

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+
 import useMessage from '../hooks/useMessage';
 import useLoading from '../hooks/useLoading';
+
+import TiesCard from '../components/Stats/TiesCard';
+import StatsGrid from '../components/Stats/StatsGrid';
+import EmptyState from '../components/Stats/EmptyState';
 import StatsHeader from '../components/Stats/StatsHeader';
 import LoadingSkeleton from '../components/Stats/LoadingSkeleton';
-import EmptyState from '../components/Stats/EmptyState';
-import StatsGrid from '../components/Stats/StatsGrid';
-import TiesCard from '../components/Stats/TiesCard';
 import PerformanceBreakdown from '../components/Stats/PerformanceBreakdown';
 
 export default function MyStats() {
