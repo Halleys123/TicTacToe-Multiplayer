@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const GameSchema: IGame = new Schema<IGame>({
+const GameSchema: Schema<IGame> = new Schema<IGame>({
   game_id: {
     type: String,
     required: true,
