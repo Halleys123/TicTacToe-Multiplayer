@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 import GeneralLayout from './layouts/GeneralLayout';
-import PageLoader from './components/PageLoader';
 
 const MatchmakingScreen = lazy(() => import('./pages/MatchmakingScreen'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
@@ -11,6 +10,7 @@ const GamePage = lazy(() => import('./pages/GamePage'));
 const MyStats = lazy(() => import('./pages/MyStats'));
 
 import MultiplayerModal from './components/MultiplayerModal';
+import PageLoader from './components/PageLoader';
 
 import LoadingProvider from './Provider/LoadingProvider';
 import SocketProvider from './Provider/SocketProvider';
