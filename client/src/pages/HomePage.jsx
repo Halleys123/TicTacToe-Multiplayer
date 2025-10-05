@@ -86,6 +86,14 @@ export default function HomePage() {
               Leaderboard
             </button> */}
 
+            <button
+              disabled={loading || !isLoggedIn}
+              onClick={() => navigate('/my-stats')}
+              className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-indigo-300 disabled:hover:bg-indigo-300 text-white font-semibold transition-colors'
+            >
+              My Stats
+            </button>
+
             <div className='relative my-2'>
               <div className='flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 select-none'>
                 <span className='flex-1 h-px bg-gray-200 dark:bg-white/10' />

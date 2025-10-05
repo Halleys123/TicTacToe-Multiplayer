@@ -13,6 +13,7 @@ import LoadingProvider from './Provider/LoadingProvider';
 import SocketProvider from './Provider/SocketProvider';
 import AuthProvider from './Provider/AuthProvider';
 import MessageProvider from './Provider/MessageProvider';
+import MyStats from './pages/MyStats';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                   <Route path='/game' element={<GamePage />} />
                   <Route path='/matchmaking' element={<MatchmakingScreen />} />
                   <Route path='/enter-code' element={<MatchmakingScreen />} />
+                  <Route path='/my-stats' element={<MyStats />} />
                 </Routes>
               </BrowserRouter>
             </MessageProvider>
