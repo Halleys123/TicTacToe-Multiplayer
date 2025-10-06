@@ -71,12 +71,17 @@ export default async function gameHandler(
       gameBoard,
     });
 
-    if (userId != game.current_turn) {
+    if (userId !== game.current_turn) {
       console.log(
         "[game_update] Not player's turn:",
-        game,
+        'userId:',
+        userId,
         'Current turn:',
-        game.current_turn
+        game.current_turn,
+        'Type of userId:',
+        typeof userId,
+        'Type of current_turn:',
+        typeof game.current_turn
       );
       socket.emit('game_message', {
         message: 'It is not your turn',

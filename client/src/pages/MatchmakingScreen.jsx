@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react';
 import { useBeforeUnload, useNavigate } from 'react-router-dom';
 import useLoading from '../hooks/useLoading';
 import useSocket from '../hooks/useSocket';
+import useMessage from '../hooks/useMessage';
 
-async function startMatchMaking(setLoading) {
+async function startMatchMaking(
+  setLoading,
+  addMessage = () => {},
+  navigate = () => {}
+) {
   setLoading(true);
 
   const res = await fetch(
@@ -21,7 +26,10 @@ async function startMatchMaking(setLoading) {
 
   setLoading(false);
 
-  alert(data.message);
+  addMessage(data.message, data.success, 3000);
+  if (data.statusCode == 409) {
+    navigate(`/game?mode=online&game-id=${data.data?.existingGameId}`);
+  }
 }
 
 async function goBack(navigate) {
@@ -48,17 +56,18 @@ export default function MatchmakingScreen() {
 
   const { setLoading } = useLoading();
   const { socket } = useSocket();
+  const { addmessage } = useMessage();
 
   useEffect(() => {
     setLoading(true);
     document.title = 'Matchmaking - Tic Tac Toe';
-    startMatchMaking(setLoading, setOtherPlayer);
+    startMatchMaking(setLoading, addmessage, navigate);
     setPlayer({
       name: localStorage.getItem('user_name') || 'Loading...',
       id: localStorage.getItem('user_id') || 'Loading...',
       email: localStorage.getItem('user_email') || 'Loading...',
     });
-  }, [setLoading]);
+  }, [setLoading, addmessage, navigate]);
 
   useEffect(() => {
     if (!socket) return;

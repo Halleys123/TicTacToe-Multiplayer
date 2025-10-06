@@ -122,12 +122,18 @@ export default function GamePage() {
 
     const handleGameTimer = (data) => {
       console.log('Timer update received:', data);
+      if (!timerValRef.current) {
+        console.warn('Timer ref not ready yet');
+        return;
+      }
       let val = Math.ceil(data.data);
       timerValRef.current.innerText = `Timer: ${val}s`;
       clearInterval(timerRef.current);
 
       timerRef.current = setInterval(() => {
-        timerValRef.current.innerText = `Time Elapsed: ${++val}s`;
+        if (timerValRef.current) {
+          timerValRef.current.innerText = `Time Elapsed: ${++val}s`;
+        }
       }, 1000);
     };
 

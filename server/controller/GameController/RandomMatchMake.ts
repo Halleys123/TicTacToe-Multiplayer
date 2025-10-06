@@ -122,7 +122,7 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
       'You are in other game, either quit that or continue that game';
     response.success = false;
     response.status = 'error';
-    response.statusCode = 400;
+    response.statusCode = 409;
 
     sendResponse(res, response);
   }
