@@ -188,12 +188,14 @@ const RandomMatchMake = catchAsync(async (req: Request, res: Response) => {
       otherData: await UserModel.findById(p2).lean(),
       game: game,
       myTurn: true, // p1 always starts first
+      gameId,
     };
 
     const p2Data = {
       otherData: await UserModel.findById(p1).lean(),
       game: game,
       myTurn: false, // p2 waits
+      gameId,
     };
 
     p1Sock.emit('match_found', p1Data);

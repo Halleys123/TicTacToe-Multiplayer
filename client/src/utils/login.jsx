@@ -1,11 +1,11 @@
 export default async function login(token, setIsLoggedIn, setLoading) {
   setLoading(true);
   try {
-    if (import.meta.env.NODE_ENV === 'development') {
-      setTimeout(() => {
-        setLoading(false);
-      }, 5000);
-    }
+    // if (import.meta.env.NODE_ENV === 'development') {
+    //   setTimeout(() => {
+    //     setLoading(false);
+    //   }, 5000);
+    // }
 
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/auth/login`,

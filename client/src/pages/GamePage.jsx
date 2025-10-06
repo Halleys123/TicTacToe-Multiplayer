@@ -137,10 +137,56 @@ export default function GamePage() {
       }, 1000);
     };
 
+    const handleVerifyGameResponse = (data) => {
+      console.log('Verify game response:', data);
+      if (!data.inGame) {
+        console.log('Not in game, redirecting to home');
+        addMessage(data.message || 'Not in any game', false, 3000);
+        setTimeout(() => {
+          navigate('/');
+        }, 100);
+        return;
+      }
+
+      // User is in a valid game, set up the game state
+      if (data.data?.game_board) {
+        setGameState(data.data.game_board);
+      }
+
+      if (data.data?.current_turn) {
+        const isMyTurn =
+          localStorage.getItem('user_id') === data.data.current_turn;
+        setMyTurn(isMyTurn);
+      }
+
+      // Start the timer
+      if (data.timeElapsed !== undefined) {
+        let val = Math.ceil(data.timeElapsed);
+        if (timerValRef.current) {
+          timerValRef.current.innerText = `Timer: ${val}s`;
+        }
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          if (timerValRef.current) {
+            timerValRef.current.innerText = `Time Elapsed: ${++val}s`;
+          }
+        }, 1000);
+      }
+    };
+
     const handleGameMessage = (data) => {
       console.log('Game update received:', data);
       if (data.success === false) {
         addMessage(data.message, false, 3000);
+        return;
+      }
+      // Check if game data is actually present
+      if (!data.data || !data.data.game_board) {
+        console.log('Game data missing, treating as no_game');
+        addMessage('Game session ended', false, 3000);
+        setTimeout(() => {
+          navigate('/');
+        }, 100);
         return;
       }
       console.log(data.data.game_board);
@@ -154,7 +200,6 @@ export default function GamePage() {
     };
     const noGameHandler = () => {
       console.log('Not in game');
-      alert('Not in game anymore');
       addMessage('Not in game anymore', false, 3000);
       setGameState([
         ['', '', ''],
@@ -162,7 +207,10 @@ export default function GamePage() {
         ['', '', ''],
       ]);
       setMyTurn(false);
-      navigate('/');
+      // Navigate after a short delay to ensure state updates complete
+      setTimeout(() => {
+        navigate('/');
+      }, 100);
     };
     const gameOverHandler = (data) => {
       console.log('Game over:', data);
@@ -202,6 +250,11 @@ export default function GamePage() {
     socket.on('game_current_turn', gameCurrentTurnHandler);
     socket.on('match_found', matchFoundHandler);
     socket.on('timer_update', handleGameTimer);
+    socket.on('verify_game_response', handleVerifyGameResponse);
+
+    // Verify if user is in a valid game on mount
+    console.log('Verifying game status...');
+    socket.emit('verify_game');
 
     return () => {
       socket.off('no_game', noGameHandler);
@@ -210,9 +263,10 @@ export default function GamePage() {
       socket.off('game_current_turn', gameCurrentTurnHandler);
       socket.off('match_found', matchFoundHandler);
       socket.off('timer_update', handleGameTimer);
+      socket.off('verify_game_response', handleVerifyGameResponse);
       clearInterval(timerRef.current);
     };
-  }, [socket, navigate, onlineGame, addMessage, timerRef, timerValRef]);
+  }, [socket, navigate, onlineGame, addMessage]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>

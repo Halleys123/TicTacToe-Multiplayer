@@ -37,11 +37,13 @@ export default async function gameHandler(
 
     if (!gameId) {
       console.log('[game_update] User not in any game');
-      socket.emit('game_message', {
+      socket.emit('no_game', {
         message: 'User not in any game',
         data: null,
         success: false,
       });
+      // Clean up any stale game_id reference
+      await redisClient.hDel(userIdKey(userId), 'game_id');
       return;
     }
     const game = { ...(await redisClient.hGetAll(gameIdKey(gameId))) };
@@ -52,16 +54,18 @@ export default async function gameHandler(
 
     if (!game || keys.length < 5 || !keys[0] || !keys[1]) {
       console.log('[game_update] Game data incomplete or not found:', game);
-      socket.emit('game_message', {
-        message: 'Game data incomplete or not found',
+      socket.emit('no_game', {
+        message: 'Game not found or expired',
         data: null,
         success: false,
       });
+      // Clean up the stale game_id reference
+      await redisClient.hDel(userIdKey(userId), 'game_id');
       return;
     }
 
     socket.emit('timer_update', {
-      data: (Date.now() - +(game.last_move_time as string)) / 1000,
+      data: (Date.now() - +new Date(game.last_move_time as string)) / 1000,
       message: 'Timer updated',
       success: true,
     });

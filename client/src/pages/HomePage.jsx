@@ -103,7 +103,7 @@ export default function HomePage() {
             </div>
             {!isLoggedIn ? (
               <button
-                disabled={loading}
+                disabled={false}
                 onClick={handleGoogleLogin}
                 className='w-full disabled:cursor-not-allowed h-11 rounded-lg border border-gray-300 dark:border-white/15 bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium flex items-center justify-center gap-3 transition-colors'
               >

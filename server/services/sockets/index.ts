@@ -5,6 +5,7 @@ import { Server, Socket } from 'socket.io';
 import authHandler from './handlers/authHandler.js';
 import reconnectionHandler from './handlers/reconnectionHandler.js';
 import gameHandler from './handlers/gameHandler.js';
+import verifyGameHandler from './handlers/verifyGameHandler.js';
 
 let io: Server | undefined;
 
@@ -26,6 +27,7 @@ function initSockets() {
     if (!user) return;
 
     await reconnectionHandler(socket, redisClient, user);
+    await verifyGameHandler(socket, redisClient, user);
     await gameHandler(io, socket, redisClient, user);
 
     socket.on('disconnect', async () => {
