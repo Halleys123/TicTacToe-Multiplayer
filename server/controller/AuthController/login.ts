@@ -61,9 +61,9 @@ const login = catchAsync(async (req: Request, res: Response) => {
     sub: payload.sub,
   };
 
-  const isUser: IUser | null = await UserModel.findOne({
+  const isUser = await UserModel.findOne({
     email: userInfo.email,
-  }).lean();
+  });
 
   const tokenPayload: { [key: string]: string } = {};
 

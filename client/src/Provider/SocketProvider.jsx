@@ -20,7 +20,9 @@ export default function SocketProvider({ children }) {
       }
 
       console.log('Connecting to socket server...');
-      const newSocket = io('http://localhost:4000', {
+      const socketUrl =
+        import.meta.env.VITE_SOCKET_URL || window.location.origin;
+      const newSocket = io(socketUrl, {
         auth: {
           token: `Bearer ${accessToken}`,
         },

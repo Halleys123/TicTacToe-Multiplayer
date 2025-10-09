@@ -10,7 +10,9 @@ async function initRedis(): Promise<RedisClientType> {
     console.log('\x1b[38;2;100;100;0mAttempting redis connection\x1b[0m');
     initializing = (async () => {
       try {
-        redisClient = createClient();
+        redisClient = createClient({
+          url: process.env.REDIS_URI || 'redis://localhost:6379',
+        });
 
         redisClient.on('error', (err) => {
           console.log('\x1b[38;2;200;50;0mRedis client error\x1b[0m');
