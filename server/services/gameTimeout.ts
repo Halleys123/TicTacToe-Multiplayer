@@ -1,11 +1,11 @@
 import getRedisClient from '@services/redis/index.js';
 import { userIdKey } from '@services/redis/redisKeys.js';
-import { Server } from 'socket.io';
 import GameModel from '@models/GameModel.js';
 import { env } from '@utils/listEnv.js';
+import { Server } from 'socket.io';
 
-const TIMEOUT_DURATION: number = env.GAME_CONFIG_MOVE_TIMEOUT;
-const CHECK_INTERVAL = env.GAME_CONFIG_TIMEOUT_CHECK_INTERVAL;
+const TIMEOUT_DURATION: number = env.GAME_CONFIG_MOVE_DURATION;
+const CHECK_INTERVAL = env.GAME_CONFIG_CHECK_INTERVAL;
 
 let timeoutInterval: NodeJS.Timeout | null = null;
 
