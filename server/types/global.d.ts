@@ -3,6 +3,7 @@ import express from 'express';
 
 declare global {
   interface IUser extends Document {
+    _id: string;
     username: string;
     displayName: string;
     email?: string;
@@ -41,6 +42,10 @@ declare global {
     interface Request {
       user?: IUser;
     }
+  }
+
+  interface AuthenticatedRequest extends express.Request {
+    user: IUser;
   }
 }
 

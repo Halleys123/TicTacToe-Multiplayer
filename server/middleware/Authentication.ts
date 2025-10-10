@@ -1,7 +1,14 @@
+// middlewares/authentication.ts
 import AppError from '@utils/AppError.js';
 import catchAsync from '@utils/catchAsync.js';
 import tokenVerification from '@utils/tokenVerification.js';
 import { NextFunction, Request, Response } from 'express';
+
+function assertUser(req: Request): asserts req is AuthenticatedRequest {
+  if (!req.user) {
+    throw new AppError('User not attached to request', 500, true);
+  }
+}
 
 const Authentication = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
@@ -22,6 +29,10 @@ const Authentication = catchAsync(
     }
 
     req.user = reply.data;
+
+    // ensure type narrow for downstream handlers
+    assertUser(req);
+
     next();
   }
 );

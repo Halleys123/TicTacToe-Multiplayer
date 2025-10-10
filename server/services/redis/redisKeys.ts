@@ -11,3 +11,7 @@ export function gameIdKey(gameId: string): string {
 export function userIdKey(userId: string): string {
   return `${base}::USERID::${userId}`;
 }
+
+export function personalRoomKey(userId: string): string {
+  return `${base}::PERSONAL_ROOM::${userId}`;
+}
