@@ -78,13 +78,12 @@ export default function HomePage() {
               Multiplayer
             </button>
 
-            {/* <button
-              disabled={loading || !isLoggedIn}
+            <button
               onClick={() => navigate('/leaderboard')}
               className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-purple-300 disabled:hover:bg-purple-300 text-white font-semibold transition-colors'
             >
               Leaderboard
-            </button> */}
+            </button>
 
             <button
               disabled={loading || !isLoggedIn}

@@ -7,12 +7,12 @@ const GameSchema: Schema<IGame> = new Schema<IGame>({
   },
   player_one_id: {
     type: Schema.Types.ObjectId,
-    ref: 'Player',
+    ref: 'Users',
     required: true,
   },
   player_two_id: {
     type: Schema.Types.ObjectId,
-    ref: 'Player',
+    ref: 'Users',
     required: true,
   },
   player_one_move: {
@@ -25,7 +25,7 @@ const GameSchema: Schema<IGame> = new Schema<IGame>({
   },
   winner: {
     type: Schema.Types.ObjectId,
-    ref: 'Player',
+    ref: 'Users',
     required: false,
   },
   final_board: {

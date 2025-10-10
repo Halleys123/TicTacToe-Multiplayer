@@ -133,10 +133,34 @@ export default async function gameHandler(
         player_one_move: game[keys[0]],
         player_two_move: game[keys[1]],
         winner: userId,
-        final_board: game.board,
+        final_board: gameBoard,
       });
 
       // Remove the game from Redis after a win
+      await redisClient.del(gameIdKey(gameId));
+      return;
+    } else if (isBoardFull(gameBoard)) {
+      io?.to(gameId).emit('game_over', {
+        message: "Game Over - It's a draw!",
+        winner: null,
+        data: gameBoard,
+        success: true,
+      });
+
+      await redisClient.hDel(userIdKey(keys[0]), 'game_id');
+      await redisClient.hDel(userIdKey(keys[1]), 'game_id');
+
+      await GameModel.create({
+        game_id: gameId,
+        player_one_id: keys[0],
+        player_two_id: keys[1],
+        player_one_move: game[keys[0]],
+        player_two_move: game[keys[1]],
+        winner: null,
+        final_board: gameBoard,
+      });
+
+      // Remove the game from Redis after a draw
       await redisClient.del(gameIdKey(gameId));
       return;
     }
@@ -209,3 +233,6 @@ type GameBoard = [
   [string, string, string],
   [string, string, string]
 ];
+function isBoardFull(game: GameBoard): boolean {
+  return game.every((row) => row.every((cell) => cell !== ''));
+}
