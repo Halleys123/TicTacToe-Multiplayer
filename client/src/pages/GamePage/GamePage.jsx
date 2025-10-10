@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, use } from 'react';
 import GameBox from '../../components/Game/GameBox';
 import useSocket from '../../hooks/useSocket';
 import { createPortal } from 'react-dom';
@@ -291,6 +291,14 @@ export default function GamePage() {
     noGameHandler,
     gameOverHandler,
   ]);
+
+  useEffect(() => {
+    try {
+      socket.emit('verify_game');
+    } catch (e) {
+      console.warn('Failed to emit verify_game:', e);
+    }
+  }, [socket]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>

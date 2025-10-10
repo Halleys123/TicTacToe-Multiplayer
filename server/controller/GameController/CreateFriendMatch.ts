@@ -18,18 +18,18 @@ if(game_id) then
 end
 
 local roomExists = redis.call("EXISTS", KEYS[3]);
-if(roomExists) then
+if(roomExists == 1) then
   return {"ROOM_EXISTS"}
 end
 
-redis.call("HPUSH", KEYS[3], ARGV[1])
+redis.call("RPUSH", KEYS[3], ARGV[1])
 redis.call("EXPIRE", KEYS[3], 600)
 return {"ROOM_CREATED"}
 `;
 
 const CreateFriendMatch = catchAsync(
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user._id;
+    const userId = String(req.user._id);
     const redisClient: RedisClientType = getRedisClient();
 
     const result = await redisClient.eval(luaCreateFriendRoom, {
@@ -57,13 +57,16 @@ const CreateFriendMatch = catchAsync(
       return sendResponse(res, response);
     } else if (tag == 'ROOM_EXISTS') {
       response.statusCode = 409;
+      response.success = true;
       response.message = 'Room already exists';
+      response.data = personalRoomKey(userId);
       return sendResponse(res, response);
     } else if (tag == 'ROOM_CREATED') {
       response.status = 'success';
       response.statusCode = 201;
       response.message = 'Friend room created successfully';
       response.success = true;
+      response.data = personalRoomKey(userId);
       return sendResponse(res, response);
     } else {
       return sendResponse(res, response);

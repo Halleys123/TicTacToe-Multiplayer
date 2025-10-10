@@ -6,6 +6,7 @@ import {
   SuspenseLeaderboard,
   SuspenseMyStats,
   SuspenseMatchmaking,
+  SuspenseFriendFind,
 } from './pages/index';
 
 import { Providers } from './Provider/index';
@@ -29,6 +30,7 @@ function App() {
             <Route path='/matchmaking' element={<SuspenseMatchmaking />} />
             <Route path='/enter-code' element={<SuspenseMatchmaking />} />
             <Route path='/my-stats' element={<SuspenseMyStats />} />
+            <Route path='/friend-match' element={<SuspenseFriendFind />} />
           </Routes>
         </BrowserRouter>
       </GeneralLayout>
