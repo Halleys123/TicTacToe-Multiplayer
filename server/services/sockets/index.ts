@@ -23,8 +23,11 @@ function initSockets() {
     if (!io) return;
     const redisClient: RedisClientType = getRedisClient();
     const user: IUser | null = await authHandler(io, socket, redisClient);
-
-    if (!user) return;
+    console.log('conneciton attemp');
+    if (!user) {
+      console.log('No user');
+      return;
+    }
 
     await reconnectionHandler(socket, redisClient, user);
     await verifyGameHandler(socket, redisClient, user);

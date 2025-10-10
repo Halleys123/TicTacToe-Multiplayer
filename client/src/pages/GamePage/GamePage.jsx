@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import GameBox from '../components/Game/GameBox';
-import useSocket from '../hooks/useSocket';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import GameBox from '../../components/Game/GameBox';
+import useSocket from '../../hooks/useSocket';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import useMessage from '../hooks/useMessage';
+import useMessage from '../../hooks/useMessage';
 
 export default function GamePage() {
   const { socket } = useSocket();
@@ -117,27 +117,25 @@ export default function GamePage() {
     }
   }
 
-  useEffect(() => {
-    if (!socket || !onlineGame) return;
+  const handleGameTimer = useCallback((data) => {
+    console.log('Timer update received:', data);
+    if (!timerValRef.current) {
+      console.warn('Timer ref not ready yet');
+      return;
+    }
+    let val = Math.ceil(data.data);
+    timerValRef.current.innerText = `Timer: ${val}s`;
+    clearInterval(timerRef.current);
 
-    const handleGameTimer = (data) => {
-      console.log('Timer update received:', data);
-      if (!timerValRef.current) {
-        console.warn('Timer ref not ready yet');
-        return;
+    timerRef.current = setInterval(() => {
+      if (timerValRef.current) {
+        timerValRef.current.innerText = `Time Elapsed: ${++val}s`;
       }
-      let val = Math.ceil(data.data);
-      timerValRef.current.innerText = `Timer: ${val}s`;
-      clearInterval(timerRef.current);
+    }, 1000);
+  }, []);
 
-      timerRef.current = setInterval(() => {
-        if (timerValRef.current) {
-          timerValRef.current.innerText = `Time Elapsed: ${++val}s`;
-        }
-      }, 1000);
-    };
-
-    const handleVerifyGameResponse = (data) => {
+  const handleVerifyGameResponse = useCallback(
+    (data) => {
       console.log('Verify game response:', data);
       if (!data.inGame) {
         console.log('Not in game, redirecting to home');
@@ -172,9 +170,12 @@ export default function GamePage() {
           }
         }, 1000);
       }
-    };
+    },
+    [addMessage, navigate]
+  );
 
-    const handleGameMessage = (data) => {
+  const handleGameMessage = useCallback(
+    (data) => {
       console.log('Game update received:', data);
       if (data.success === false) {
         addMessage(data.message, false, 3000);
@@ -197,52 +198,68 @@ export default function GamePage() {
       } else {
         setMyTurn(false);
       }
-    };
-    const noGameHandler = () => {
-      console.log('Not in game');
-      addMessage('Not in game anymore', false, 3000);
-      setGameState([
-        ['', '', ''],
-        ['', '', ''],
-        ['', '', ''],
-      ]);
-      setMyTurn(false);
-      // Navigate after a short delay to ensure state updates complete
-      setTimeout(() => {
-        navigate('/');
-      }, 100);
-    };
-    const gameOverHandler = (data) => {
+    },
+    [addMessage, navigate]
+  );
+
+  const noGameHandler = useCallback(() => {
+    console.log('Not in game');
+    addMessage('Not in game anymore', false, 3000);
+    setGameState([
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', ''],
+    ]);
+    setMyTurn(false);
+    // Navigate after a short delay to ensure state updates complete
+    setTimeout(() => {
+      navigate('/');
+    }, 100);
+  }, [addMessage, navigate]);
+
+  const gameOverHandler = useCallback(
+    (data) => {
       console.log('Game over:', data);
       clearInterval(timerRef.current);
       if (data.winner === 'tie') {
         addMessage(`Game tied!`, true, 3000);
       } else {
+        const meWin = localStorage.getItem('user_id') === data.winner;
+        if (meWin) {
+          addMessage(`You win!`, true, 3000);
+        } else {
+          addMessage(`You lose!`, false, 3000);
+        }
         addMessage(`${data.winner} wins!`, true, 3000);
       }
       setGameState(data.data);
       setMyTurn(false);
       setWinner(data.winner);
-    };
+    },
+    [addMessage]
+  );
 
-    const gameCurrentTurnHandler = (currentTurn) => {
-      console.log('Current turn:', currentTurn);
-      if (localStorage.getItem('user_id') == currentTurn) {
-        setMyTurn(true);
-      } else {
-        setMyTurn(false);
-      }
-    };
+  const gameCurrentTurnHandler = useCallback((currentTurn) => {
+    console.log('Current turn:', currentTurn);
+    if (localStorage.getItem('user_id') == currentTurn) {
+      setMyTurn(true);
+    } else {
+      setMyTurn(false);
+    }
+  }, []);
 
-    const matchFoundHandler = (data) => {
-      console.log('Match found in GamePage:', data);
-      if (data.game?.game_board) {
-        setGameState(data.game.game_board);
-      }
-      if (data.myTurn !== undefined) {
-        setMyTurn(data.myTurn);
-      }
-    };
+  const matchFoundHandler = useCallback((data) => {
+    console.log('Match found in GamePage:', data);
+    if (data.game?.game_board) {
+      setGameState(data.game.game_board);
+    }
+    if (data.myTurn !== undefined) {
+      setMyTurn(data.myTurn);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!socket || !onlineGame) return;
 
     socket.on('no_game', noGameHandler);
     socket.on('game_message', handleGameMessage);
@@ -251,10 +268,6 @@ export default function GamePage() {
     socket.on('match_found', matchFoundHandler);
     socket.on('timer_update', handleGameTimer);
     socket.on('verify_game_response', handleVerifyGameResponse);
-
-    // Verify if user is in a valid game on mount
-    console.log('Verifying game status...');
-    socket.emit('verify_game');
 
     return () => {
       socket.off('no_game', noGameHandler);
@@ -266,7 +279,18 @@ export default function GamePage() {
       socket.off('verify_game_response', handleVerifyGameResponse);
       clearInterval(timerRef.current);
     };
-  }, [socket, navigate, onlineGame, addMessage]);
+  }, [
+    socket,
+    navigate,
+    onlineGame,
+    gameCurrentTurnHandler,
+    handleGameMessage,
+    handleGameTimer,
+    handleVerifyGameResponse,
+    matchFoundHandler,
+    noGameHandler,
+    gameOverHandler,
+  ]);
 
   return (
     <div className='w-screen min-h-screen flex items-center justify-center flex-col '>
@@ -278,7 +302,30 @@ export default function GamePage() {
               ? 'absolute top-0 left-0 h-screen w-screen z-10 cursor-not-allowed'
               : 'hidden'
           }
-        ></div>,
+        >
+          {winner && (
+            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 p-10 rounded-2xl shadow-2xl z-20 text-center border-4 border-gray-200 dark:border-gray-700 min-w-[400px]'>
+              <h2 className='text-4xl font-PressStart2P font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-blue-400'>
+                {winner === 'tie'
+                  ? "It's a Tie!"
+                  : `${
+                      localStorage.getItem('user_id') === winner
+                        ? 'You Win!'
+                        : 'You Lose!'
+                    }`}
+              </h2>
+              <p className='text-sm font-PressStart2P text-gray-600 dark:text-gray-400 mb-8'>
+                {winner === 'tie' ? 'Well played!' : 'Good game!'}
+              </p>
+              <button
+                onClick={goBack}
+                className='px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-bold text-lg font-PressStart2P rounded-xl transition-all duration-200 shadow-lg hover:shadow-2xl transform hover:scale-110 active:scale-95'
+              >
+                Home
+              </button>
+            </div>
+          )}
+        </div>,
         document.body
       )}
 
@@ -300,13 +347,15 @@ export default function GamePage() {
             </span>
           </div>
 
-          <div className='flex-1 flex flex-row-reverse justify-end'>
-            <button
-              onClick={onRestart}
-              className='px-4 py-2 bg-blue-600 hover:bg-blue-700 ml-2 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
-            >
-              Restart
-            </button>
+          <div className='flex-1 flex justify-end'>
+            {!onlineGame ? (
+              <button
+                onClick={onRestart}
+                className='px-4 py-2 bg-blue-600 hover:bg-blue-700 ml-2 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
+              >
+                Restart
+              </button>
+            ) : null}
             <button
               onClick={goBack}
               className='px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm font-PressStart2P rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-105'
@@ -325,23 +374,6 @@ export default function GamePage() {
           >
             Timer: 20s
           </span>
-          {/* <div className='flex-1'>
-            <span className='text-xl font-PressStart2P font-medium text-player-two'>
-              X: {winCount.x}
-            </span>
-          </div>
-
-          <div className='flex-1 text-center'>
-            <span className='text-xl font-PressStart2P font-medium text-gray-600 dark:text-gray-300'>
-              Ties: {winCount.ties}
-            </span>
-          </div>
-
-          <div className='flex-1 flex justify-end'>
-            <span className='text-xl font-PressStart2P font-medium text-player-one'>
-              O: {winCount.o}
-            </span>
-          </div> */}
         </div>
       </div>
     </div>

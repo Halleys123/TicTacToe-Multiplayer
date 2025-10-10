@@ -118,7 +118,7 @@ export default async function gameHandler(
     if (checkWinner(gameBoard, game[userId] || '-', newRow, newCol)) {
       io?.to(gameId).emit('game_over', {
         message: `Game Over player ${userId} won!!!`,
-        winner: game[userId],
+        winner: userId,
         data: gameBoard,
         success: true,
       });
