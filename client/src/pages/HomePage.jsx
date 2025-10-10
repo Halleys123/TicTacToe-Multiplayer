@@ -79,8 +79,9 @@ export default function HomePage() {
             </button>
 
             <button
+              disabled={loading || !isLoggedIn}
               onClick={() => navigate('/leaderboard')}
-              className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-purple-600/90 hover:bg-purple-600 disabled:bg-purple-300 disabled:hover:bg-purple-300 text-white font-semibold transition-colors'
+              className='w-full h-12 disabled:cursor-not-allowed rounded-lg bg-orange-700/90 hover:bg-orange-700 disabled:bg-orange-800 disabled:hover:bg-orange-800 text-white font-semibold transition-colors'
             >
               Leaderboard
             </button>
@@ -143,7 +144,7 @@ export default function HomePage() {
                   setSocket(null);
                   setIsLoggedIn(false);
                 }}
-                className='w-full disabled:cursor-not-allowed bg-red-400 h-11 rounded-md text-white font-PressStart2P'
+                className='w-full disabled:cursor-not-allowed bg-red-400 hover:bg-red-500 transition-colors h-11 rounded-md text-white font-PressStart2P'
               >
                 Log Out
               </button>
