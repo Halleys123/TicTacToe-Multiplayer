@@ -8,6 +8,8 @@ type EnvConfig = {
   MONGO_PASSWORD: string;
   JWT_TTL: string;
   JWT_SECRET: string;
+  GAME_CONFIG_MOVE_TIMEOUT: number;
+  GAME_CONFIG_TIMEOUT_CHECK_INTERVAL: number;
 };
 
 export const env: EnvConfig = new Proxy<EnvConfig>(
@@ -21,6 +23,10 @@ export const env: EnvConfig = new Proxy<EnvConfig>(
     MONGO_PASSWORD: process.env.MONGO_PASSWORD || '',
     JWT_SECRET: process.env.JWT_SECRET || '',
     JWT_TTL: process.env.JWT_TTL || '',
+    GAME_CONFIG_MOVE_TIMEOUT:
+      Number(process.env.GAME_CONFIG_MOVE_TIMEOUT) || 20000,
+    GAME_CONFIG_TIMEOUT_CHECK_INTERVAL:
+      Number(process.env.GAME_CONFIG_TIMEOUT_CHECK_INTERVAL) || 5000,
   },
   {
     get(target: EnvConfig, prop: keyof EnvConfig) {

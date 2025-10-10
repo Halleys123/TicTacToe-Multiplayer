@@ -226,9 +226,9 @@ export default function GamePage() {
       } else {
         const meWin = localStorage.getItem('user_id') === data.winner;
         if (meWin) {
-          addMessage(`You win!`, true, 3000);
+          addMessage(data.message, true, 3000);
         } else {
-          addMessage(`You lose!`, false, 3000);
+          addMessage(data.message, false, 3000);
         }
         addMessage(`${data.winner} wins!`, true, 3000);
       }

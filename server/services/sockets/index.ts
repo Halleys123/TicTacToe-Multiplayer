@@ -6,6 +6,7 @@ import authHandler from './handlers/authHandler.js';
 import reconnectionHandler from './handlers/reconnectionHandler.js';
 import gameHandler from './handlers/gameHandler.js';
 import verifyGameHandler from './handlers/verifyGameHandler.js';
+import { startGameTimeoutChecker } from '@services/gameTimeout.js';
 
 let io: Server | undefined;
 
@@ -18,6 +19,9 @@ function initSockets() {
   });
 
   if (!io) return;
+
+  // Start the game timeout checker
+  startGameTimeoutChecker(io);
 
   io.on('connection', async (socket: Socket) => {
     if (!io) return;

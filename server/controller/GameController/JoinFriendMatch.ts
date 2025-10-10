@@ -67,6 +67,7 @@ const JoinFriendMatch = catchAsync(
         'last_move_time',
         Date.now().toString()
       ),
+      redisClient.del(roomId),
     ]);
 
     const game = { ...(await redisClient.hGetAll(gameIdKey(newGameId))) };
