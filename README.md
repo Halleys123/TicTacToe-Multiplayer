@@ -1,59 +1,26 @@
-# TicTacToe
+# TicTacToe V2
 
-- Made this project to test my skills in WebSockets and Redis primarily.
-- Other technologies used are:
+This is the second version of TicTacToe that I will make, the primary focus of this version would be a complete, deployable game which is also scalable, this will focus on following aspects (business requirements):
 
-1. Node.js
-2. Express.js
-3. Socket.io
-4. Redis
-5. React
-6. Tailwind CSS
-7. Vite
-8. Docker
-9. Docker Compose
+1. Bot Games
+2. Local Multiplayer Game
+3. Online Matchmaking Game
+4. Online Friend Game
+5. Leaderboard
 
-## About the Game
+## Path
 
-Game will support two type of modes:
+It will be divided into groups of 4 stage each, first 4 focus on local game and next 4 on online game and matchmaking
 
-1. Player vs Player (Online) - Two players can play against each other in real-time.
-2. Player vs Player (Local) - Two players can play against each other on the same device while taking turns.
+1. First stage would be building UI for the game itself, that includes a main menu, a game screen with required components
+2. Second Stage would be building the game logic as optimized as possible using bitmaps and precomputed winning stages rather than a for loop check on every move.
+3. Third stage would be implementing a simple two player game.
+4. Fourth stage would be bot implementation for single player game.
 
-## How to Run
+Next stages primary focus will be on matchmaking and online games, without the bugs that version 1 have.
 
-### Docker Compose
-
-Just run the following command in the root directory:
-
-```bash
-docker-compose up
-```
-
-### Manually
-
-1. Make sure you have Node.js and Redis installed on your machine.
-2. Navigate to the `server` directory and install dependencies:
-
-```bash
-npm install
-```
-
-3. Start the Redis server.
-4. Start the server:
-
-```bash
-npm start
-```
-
-### Navigate to the `client` directory and install dependencies:
-
-```bash
-npm install
-```
-
-5. Start the client:
-
-```bash
-npm start
-```
+0. Start with Auth logic as that is required for verifying users.
+1. Start with building the backend and logic for simple random matchmaking. (This and next would have similar logic so think about these then make anything)
+2. Second stage will be connecting with a friend using a Room.
+3. Third stage would be building the UI for matchmaking for both friend matchmaking and random matchmaking.
+4. Last will be implementation of leaderboard on backend and UI on frontend for leaderboard.
